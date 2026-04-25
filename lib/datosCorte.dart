@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-//import 'tarjetasCajero/cajero.dart';
 import 'tarjetasCajero/baucherCajero.dart';
-//import 'tarjetasCajero/santander.dart';
-//import 'tarjetasCajero/mifel.dart';
-//import 'tarjetasCajero/monedero.dart';
 import 'clientes/listadoClientes.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
