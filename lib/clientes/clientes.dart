@@ -20,7 +20,7 @@ class ClientesCapturaPage extends StatefulWidget {
   final int idCliente;
   final String razonSocial;
   final String fecha; // "yyyy/MM/dd"
-  final String producto;
+  final String turno;
 
   const ClientesCapturaPage({
     super.key,
@@ -28,7 +28,7 @@ class ClientesCapturaPage extends StatefulWidget {
     required this.idCliente,
     required this.razonSocial,
     required this.fecha,
-    required this.producto,
+    required this.turno,
   });
 
   @override
@@ -51,7 +51,7 @@ class _ClientesCapturaPageState extends State<ClientesCapturaPage> {
   late int idCliente = widget.idCliente;
   late String razonSocial = widget.razonSocial;
   late String fecha = widget.fecha; // "yyyy/MM/dd"
-  late String producto = widget.producto;
+  late String turno = widget.turno;
 
   @override
   void initState() {
@@ -95,8 +95,8 @@ class _ClientesCapturaPageState extends State<ClientesCapturaPage> {
         idCliente: idCliente,
         idUsuario: idUsuario,
         fecha: fecha,
-        producto:
-            producto, // nuevo campo para compatibilidad con tu función actual
+        turno:
+            turno, // nuevo campo para compatibilidad con tu función actual
       );
 
       if (!mounted) return;
@@ -192,8 +192,8 @@ class _ClientesCapturaPageState extends State<ClientesCapturaPage> {
       razonSocial: razonSocial,
       fecha: fecha,
       importes: importes,
-      producto:
-          producto, // nuevo campo para compatibilidad con tu función actual
+      turno:
+          turno, // nuevo campo para compatibilidad con tu función actual
     );
   }
 
@@ -204,8 +204,8 @@ class _ClientesCapturaPageState extends State<ClientesCapturaPage> {
       razonSocial: razonSocial,
       fecha: fecha,
       importes: importes,
-      producto: widget
-          .producto, // nuevo campo para compatibilidad con tu función actual
+      turno: widget
+          .turno, // nuevo campo para compatibilidad con tu función actual
     );
   }
 

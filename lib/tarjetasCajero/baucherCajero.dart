@@ -20,14 +20,15 @@ class RegistroDocumentosPage extends StatefulWidget {
   final String fecha; // "dd/MM/yyyy"
   final String turno; // compatibilidad con tu llamada actual
   final String banco;
+  final int? idBanco; // opcional, por si quieres usarlo para algo específico
 
   const RegistroDocumentosPage({
     super.key,
     required this.idUsuario,
     required this.fecha,
-    required String user,
     required this.turno, // compatibilidad con tu llamada actual
     required this.banco,
+    this.idBanco
   });
 
   @override
@@ -48,7 +49,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
 
   // ===================== API & USERAPI =====================
   final ApiService apiService = ApiService();
-  late final BancosApi cajeroApi = BancosApi(apiService);
+  late final DocuementosApi doc_Api = DocuementosApi(apiService);
 
   @override
   void initState() {
@@ -56,6 +57,12 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
     _items.add(_nuevoItemVacio());
     banco = widget.banco;
     _cargarDatosIniciales();
+
+    print('ID Usuario: ${widget.idUsuario}');
+    print('Fecha: ${widget.fecha}');
+    print('Turno: ${widget.turno}');
+    print ('Banco: ${widget.banco}');
+    print(widget.idUsuario);
   }
 
   @override
@@ -87,7 +94,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
   // ===================== CARGA INICIAL =====================
   Future<void> _cargarDatosIniciales() async {
     try {
-      final rows = await cajeroApi.obtenerDatos(
+      final rows = await doc_Api.obtenerDatos(
         idUsuario: widget.idUsuario,
         fecha: widget.fecha,
         turno: widget.turno, // compatibilidad con tu llamada actual
@@ -181,7 +188,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
 
   // ===================== GUARDAR / ACTUALIZAR =====================
   Future<void> _guardarNuevo(List<double> importes) async {
-    await cajeroApi.registrarDatos(
+    await doc_Api.registrarDatos(
       idUsuario: widget.idUsuario,
       fecha: widget.fecha,
       importes: importes,
@@ -191,7 +198,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
   }
 
   Future<void> _actualizar(List<double> importes) async {
-    await cajeroApi.actualizarDatos(
+    await doc_Api.actualizarDatos(
       idUsuario: widget.idUsuario,
       fecha: widget.fecha,
       importes: importes,
@@ -263,7 +270,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
     }
 
     try {
-      await cajeroApi.eliminarDatos(id: item.idRegistros!, banco: banco);
+      await doc_Api.eliminarDatos(id: item.idRegistros!, banco: banco);
 
       if (!mounted) return;
 

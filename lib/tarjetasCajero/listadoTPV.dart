@@ -2,12 +2,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../api/client/clientes_api.dart';
+import '../api/documentos/registroDoc_api.dart';
 import '../api/consumoPHP.dart';
-import 'clientes.dart';
+import 'baucherCajero.dart';
 
-class Listadoclientes extends StatefulWidget {
-  const Listadoclientes({
+
+class ListaBancos extends StatefulWidget {
+  const ListaBancos({
     super.key,
     required this.idUsuario,
     required this.fecha,
@@ -21,15 +22,15 @@ class Listadoclientes extends StatefulWidget {
   final String turno;
 
   @override
-  State<Listadoclientes> createState() => _ListadoclientesState();
+  State<ListaBancos> createState() => _ListaBancosState();
 }
 
-class _ListadoclientesState extends State<Listadoclientes> {
+class _ListaBancosState extends State<ListaBancos> {
   final ApiService apiService = ApiService();
-  late final ClientesApi clientesApi;
-  late Future<List<Map<String, dynamic>>> _futureClientes;
+  late final DocuementosApi  docuementosApi;
+  late Future<List<Map<String, dynamic>>> _futureBancos;
 
-  List<Map<String, dynamic>> _clientes = [];
+  List<Map<String, dynamic>> _bancos = [];
 
   SharedPreferences? _prefs;
   bool _prefsReady = false;
@@ -40,29 +41,29 @@ class _ListadoclientesState extends State<Listadoclientes> {
   @override
   void initState() {
     super.initState();
-    clientesApi = ClientesApi(apiService);
+    docuementosApi = DocuementosApi(apiService);
 
-    _futureClientes = _initPage();
+    _futureBancos = _initPage();
   }
 
   Future<List<Map<String, dynamic>>> _initPage() async {
     _prefs = await SharedPreferences.getInstance();
     _prefsReady = true;
 
-    final clientes = await fetchClientes();
+    final bancos = await fetchBancos();
     await _aplicarSaldosGuardados();
 
-    return clientes;
+    return bancos;
   }
 
-  Future<List<Map<String, dynamic>>> fetchClientes() async {
+  Future<List<Map<String, dynamic>>> fetchBancos() async {
     try {
-      final clientes = await clientesApi.getClientes();
+      final bancos = await docuementosApi.getBancos();
 
-      _clientes = List<Map<String, dynamic>>.from(clientes);
-      return _clientes;
+      _bancos = List<Map<String, dynamic>>.from(bancos);
+      return _bancos;
     } catch (e) {
-      debugPrint('Error al obtener clientes: $e');
+      debugPrint('Error al obtener bancos: $e');
       return [];
     }
   }
@@ -75,11 +76,11 @@ class _ListadoclientesState extends State<Listadoclientes> {
 
     final Map<String, dynamic> saldosGuardados = jsonDecode(jsonString);
 
-    for (final cliente in _clientes) {
-      final id = (cliente['IdCliente'] as num?)?.toInt() ?? 0;
+    for (final banco in _bancos) {
+      final id = (banco['IdBanco'] as num?)?.toInt() ?? 0;
 
       if (saldosGuardados.containsKey(id.toString())) {
-        cliente['saldoTotal'] =
+        banco['saldoTotal'] =
             (saldosGuardados[id.toString()] as num).toDouble();
       }
     }
@@ -90,8 +91,8 @@ class _ListadoclientesState extends State<Listadoclientes> {
 
     final Map<String, double> saldos = {};
 
-    for (final cliente in _clientes) {
-      final id = (cliente['IdCliente'] as num?)?.toInt() ?? 0;
+    for (final cliente in _bancos) {
+      final id = (cliente['IdBanco'] as num?)?.toInt() ?? 0;
       final saldo = cliente['saldoTotal'];
 
       final valor = saldo is num
@@ -111,22 +112,22 @@ class _ListadoclientesState extends State<Listadoclientes> {
 
     if (!mounted) return;
     setState(() {
-      for (final cliente in _clientes) {
+      for (final cliente in _bancos) {
         cliente['saldoTotal'] = 0.0;
       }
     });
   }
 
-  Future<void> _abrirCapturaCliente({
-    required int idCliente,
-    required String razonSocial,
+  Future<void> _abrirCapturaTPV({
+    required int idBanco,
+    required String banco,
   }) async {
     final total = await Navigator.push<double>(
       context,
       MaterialPageRoute(
-        builder: (_) => ClientesCapturaPage(
-          idCliente: idCliente,
-          razonSocial: razonSocial,
+        builder: (_) => RegistroDocumentosPage(
+          idBanco: idBanco,
+          banco: banco,
           idUsuario: widget.idUsuario,
           fecha: widget.fecha,
           turno: widget.turno,
@@ -136,12 +137,12 @@ class _ListadoclientesState extends State<Listadoclientes> {
 
     if (total != null && mounted) {
       setState(() {
-        final i = _clientes.indexWhere(
-          (c) => (c['IdCliente'] as num?)?.toInt() == idCliente,
+        final i = _bancos.indexWhere(
+              (c) => (c['Idbanco'] as num?)?.toInt() == idBanco,
         );
 
         if (i != -1) {
-          _clientes[i]['saldoTotal'] = total;
+          _bancos[i]['saldoTotal'] = total;
         }
       });
 
@@ -152,8 +153,8 @@ class _ListadoclientesState extends State<Listadoclientes> {
   double _calcularTotalGeneral() {
     double total = 0;
 
-    for (final cliente in _clientes) {
-      final saldo = cliente['saldoTotal'];
+    for (final banco in _bancos) {
+      final saldo = banco['saldoTotal'];
       final valor = saldo is num
           ? saldo.toDouble()
           : double.tryParse(saldo.toString()) ?? 0.0;
@@ -165,7 +166,7 @@ class _ListadoclientesState extends State<Listadoclientes> {
   }
 
   final NumberFormat _currencyFormat =
-      NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
 
   String _fmt(double valor) {
     return _currencyFormat.format(valor);
@@ -175,11 +176,11 @@ class _ListadoclientesState extends State<Listadoclientes> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Listado de Clientes'),
+        title: const Text('Listado de Bancos'),
         automaticallyImplyLeading: false,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _futureClientes,
+        future: _futureBancos,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
@@ -194,13 +195,13 @@ class _ListadoclientesState extends State<Listadoclientes> {
           }
 
           if ((!snapshot.hasData || snapshot.data!.isEmpty) &&
-              _clientes.isEmpty) {
+              _bancos.isEmpty) {
             return const Center(
               child: Text('No se encontraron clientes'),
             );
           }
 
-          final clientes = _clientes.isNotEmpty ? _clientes : snapshot.data!;
+          final bancos = _bancos.isNotEmpty ? _bancos : snapshot.data!;
           final totalGeneral = _calcularTotalGeneral();
 
           return Column(
@@ -208,21 +209,21 @@ class _ListadoclientesState extends State<Listadoclientes> {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(12),
-                  itemCount: clientes.length,
+                  itemCount: bancos.length,
                   itemBuilder: (context, index) {
-                    final cliente = clientes[index];
+                    final banco = bancos[index];
 
-                    final int idCliente =
-                        (cliente['IdCliente'] as num?)?.toInt() ?? 0;
-                    final String razonSocial =
-                        cliente['razonSocial']?.toString() ?? 'Sin nombre';
+                    final int idBanco =
+                        (banco['IdBanco'] as num?)?.toInt() ?? 0;
+                    final String nombreBanco =
+                        banco['nombreBanco']?.toString() ?? 'Sin nombre';
 
-                    final double saldo = (cliente['saldoTotal'] is num)
-                        ? (cliente['saldoTotal'] as num).toDouble()
+                    final double saldo = (banco['saldoTotal'] is num)
+                        ? (banco['saldoTotal'] as num).toDouble()
                         : double.tryParse(
-                              cliente['saldoTotal']?.toString() ?? '0',
-                            ) ??
-                            0.0;
+                      banco['saldoTotal']?.toString() ?? '0',
+                    ) ??
+                        0.0;
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 10),
@@ -236,7 +237,7 @@ class _ListadoclientesState extends State<Listadoclientes> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              razonSocial,
+                              nombreBanco,
                               style: const TextStyle(
                                 fontSize: 17,
                                 fontWeight: FontWeight.bold,
@@ -252,9 +253,10 @@ class _ListadoclientesState extends State<Listadoclientes> {
                               alignment: Alignment.centerRight,
                               child: ElevatedButton.icon(
                                 onPressed: () async {
-                                  await _abrirCapturaCliente(
-                                    idCliente: idCliente,
-                                    razonSocial: razonSocial,
+                                  await _abrirCapturaTPV(
+                                    idBanco: idBanco,
+                                    banco: nombreBanco,
+
                                   );
                                 },
                                 icon: const Icon(Icons.edit_document),

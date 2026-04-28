@@ -73,10 +73,9 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
             this.context,
             MaterialPageRoute(
               builder: (_) => RegistroDocumentosPage(
-                user: corte['usuario'].toString(),
                 idUsuario: corte['idUsuario'],
                 fecha: corte['fecha'].toString(),
-                producto: corte['producto'].toString(),
+                turno: corte['turno'].toString(),
                 banco: 'Santander',
               ),
             ));
@@ -86,10 +85,9 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
             this.context,
             MaterialPageRoute(
               builder: (_) => RegistroDocumentosPage(
-                user: corte['usuario'].toString(),
                 idUsuario: corte['idUsuario'],
                 fecha: corte['fecha'].toString(),
-                producto: corte['producto'].toString(),
+                turno: corte['turno'].toString(),
                 banco: 'Mifel',
               ),
             ));
@@ -99,10 +97,9 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
             this.context,
             MaterialPageRoute(
               builder: (_) => RegistroDocumentosPage(
-                user: corte['usuario'].toString(),
                 idUsuario: corte['idUsuario'],
                 fecha: corte['fecha'].toString(),
-                producto: corte['producto'].toString(),
+                turno: corte['turno'].toString(),
                 banco: 'Monedero',
               ),
             ));
@@ -115,7 +112,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                 user: corte['usuario'].toString(),
                 idUsuario: corte['idUsuario'],
                 fecha: corte['fecha'].toString(),
-                producto: corte['producto'].toString(),
+                turno: corte['turno'].toString(),
               ),
             ));
         break;
@@ -124,10 +121,10 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
             this.context,
             MaterialPageRoute(
               builder: (_) => RegistroDocumentosPage(
-                user: corte['usuario'].toString(),
+
                 idUsuario: corte['idUsuario'],
                 fecha: corte['fecha'].toString(),
-                producto: corte['producto'].toString(),
+                turno: corte['turno'].toString(),
                 banco: 'Cajero',
               ),
             ));

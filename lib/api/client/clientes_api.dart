@@ -19,13 +19,13 @@ class ClientesApi {
     required int idCliente,
     required int idUsuario,
     required String fecha,
-    required String producto,
+    required String turno,
   }) async {
     final res = await api.postJson('Clientes/obtener.php', {
       'idCliente': idCliente,
       'idUsuario': idUsuario,
       'fecha': fecha,
-      'producto': producto,
+      'turno': turno,
     });
 
     final data = res['data'];
@@ -43,7 +43,7 @@ class ClientesApi {
     required String razonSocial,
     required String fecha,
     required List<double> importes,
-    required String producto,
+    required String turno,
   }) async {
     await api.postJson('Clientes/registrar.php', {
       'idUsuario': idUsuario,
@@ -51,7 +51,7 @@ class ClientesApi {
       'razonSocial': razonSocial,
       'fecha': fecha,
       'importes': importes,
-      'producto': producto,
+      'turno': turno,
     });
   }
 
@@ -61,7 +61,7 @@ class ClientesApi {
     required String razonSocial,
     required String fecha,
     required List<double> importes,
-    required String producto,
+    required String turno,
   }) async {
     await api.postJson('Clientes/actualizar.php', {
       'idUsuario': idUsuario,
@@ -69,7 +69,7 @@ class ClientesApi {
       'razonSocial': razonSocial,
       'fecha': fecha,
       'importes': importes,
-      'producto': producto,
+      'turno': turno,
     });
   }
 

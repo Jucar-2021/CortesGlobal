@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:cortes_despachador/tarjetasCajero/listadoTPV.dart';
+
 import 'tarjetasCajero/baucherCajero.dart';
+import 'package:flutter/material.dart';
 import 'clientes/listadoClientes.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -163,7 +165,6 @@ class _DatoCorteState extends State<DatoCorte> {
       MaterialPageRoute(
         builder: (_) => RegistroDocumentosPage(
             fecha: fecha,
-            user: user,
             idUsuario: widget.idUsuario,
             turno: turno,
             banco: banco),
@@ -177,6 +178,26 @@ class _DatoCorteState extends State<DatoCorte> {
     }
   }
 
+  Future<void> _editarTPV() async {
+    final resultado = await Navigator.push<double>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ListaBancos(
+          fecha: fecha,
+          user: user,
+          idUsuario: widget.idUsuario,
+          turno: turno,
+        ),
+      ),
+    );
+
+    if (resultado != null) {
+      setState(() => _totalClientes = resultado);
+      await _saveDouble('totalClientes', resultado);
+      _recalcularTotal();
+    }
+  }
+
   Future<void> _editarClientes() async {
     final resultado = await Navigator.push<double>(
       context,
@@ -185,7 +206,7 @@ class _DatoCorteState extends State<DatoCorte> {
           fecha: fecha,
           user: user,
           idUsuario: widget.idUsuario,
-          producto: producto,
+          turno: turno,
         ),
       ),
     );
@@ -230,7 +251,7 @@ class _DatoCorteState extends State<DatoCorte> {
         fecha,
         idUsuario,
         user,
-        producto,
+        turno,
         venta,
         cobros_TPV,
         cajero,
@@ -294,7 +315,7 @@ class _DatoCorteState extends State<DatoCorte> {
     String fecha,
     int idUsuario,
     String usuario,
-    String producto,
+    String turno,
     double venta,
     double cobrosTPV,
     double cajero,
@@ -309,12 +330,10 @@ class _DatoCorteState extends State<DatoCorte> {
       fecha: fecha,
       idUsuario: idUsuario,
       usuario: "$nombre $apellidoPaterno $apellidoMaterno",
-      producto: producto,
+      turno: turno,
       venta: venta,
-      santander: santander,
-      mifel: mifel,
-      monedero: monedero,
-      depositos: depositos,
+      cobrosTPV: cobrosTPV,
+      cajero: cajero,
       buzon: buzon,
       gastos: gastos,
       clientes: clientes,
@@ -329,22 +348,19 @@ class _DatoCorteState extends State<DatoCorte> {
 👤 <b>$nombre $apellidoPaterno $apellidoMaterno</b>
 
 ━━━━━━━━━━━━━━━━━━
-⛽ <b>Producto:</b> <code>$producto</code>
+⛽ <b>Producto:</b> <code>$turno</code>
 📅 <b>Fecha:</b> <b>$fecha</b>
 ━━━━━━━━━━━━━━━━━━
 💰 <b>Venta del día:</b> ${_fmt(double.tryParse(_ventaController.text) ?? 0)}
 
-♨️ <b>Santander:</b> ${_fmt(_totalSantander)}
+♨🏦 <b>Tarjetas Bancarias:</b> ${_fmt(_totalCobrosTPV)}
 
-🏦 <b>Mifel:</b> ${_fmt(_totalMifel)}
-
-💳 <b>Efecticard:</b> ${_fmt(_totalMonedero)}
 
 👥 <b>Total clientes:</b> ${_fmt(_totalClientes)}
 
 ━━━━━━━━━━━━━━━━━━
 🏧 <b>Depósitos Cajero:</b> ${_fmt((_totalCajero))}
-📥 <b>Buzón:</b> ${_fmt(double.tryParse(_buzonController.text) ?? 0)}
+📥 <b>Efectivo oficina:</b> ${_fmt(_totalBuzon)}
 🧾 <b>Gastos:</b> ${_fmt(double.tryParse(_gastosController.text) ?? 0)}
 
 ━━━━━━━━━━━━━━━━━━
@@ -355,7 +371,7 @@ class _DatoCorteState extends State<DatoCorte> {
 💰 <b>Monedas: ${_fmt(double.tryParse(_monedasController.text) ?? 0)}</b>
 ━━━━━━━━━━━━━━━━━━
 🟢 <b>TOTAL EFECTIVO:</b>
-💰 <b>${_fmt((double.tryParse(_ventaController.text) ?? 0) - _totalSantander - _totalMifel - _totalMonedero - _totalClientes - (double.tryParse(_gastosController.text) ?? 0))}</b>
+💰 <b>${_fmt((double.tryParse(_ventaController.text) ?? 0) - _totalCobrosTPV - _totalClientes - (double.tryParse(_gastosController.text) ?? 0))}</b>
 ''';
 
     await _corteTelegram.sendMessage(mensaje);
@@ -427,7 +443,7 @@ class _DatoCorteState extends State<DatoCorte> {
             ),
             const SizedBox(height: 2),
             Text(
-              "Captura de corte $producto con fecha:",
+              "Corte de la $turno, fecha:",
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -469,28 +485,10 @@ class _DatoCorteState extends State<DatoCorte> {
                       const SizedBox(height: 18),
                       _buildSectionTitle("Tarjetas"),
                       _buildResumenCard(
-                        titulo: "Santander",
-                        valor: _fmt(_totalSantander),
-                        icono: Icons.credit_card,
-                        onTap: _guardando
-                            ? null
-                            : () => _editarDocumentos('Santander'),
-                      ),
-                      _buildResumenCard(
-                        titulo: "Mifel",
-                        valor: _fmt(_totalMifel),
-                        icono: Icons.credit_card,
-                        onTap: _guardando
-                            ? null
-                            : () => _editarDocumentos('Mifel'),
-                      ),
-                      _buildResumenCard(
-                        titulo: "Efecticard",
-                        valor: _fmt(_totalMonedero),
-                        icono: Icons.credit_card,
-                        onTap: _guardando
-                            ? null
-                            : () => _editarDocumentos('Monedero'),
+                        titulo: "Total cobros TPV",
+                        valor: _fmt(_totalCobrosTPV),
+                        icono: Icons.people_alt_outlined,
+                        onTap: _guardando ? null : _editarTPV,
                       ),
                       const SizedBox(height: 18),
                       _buildSectionTitle("Clientes"),
@@ -511,14 +509,13 @@ class _DatoCorteState extends State<DatoCorte> {
                             : () => _editarDocumentos('Cajero'),
                       ),
                       const SizedBox(height: 10),
-                      _buildCustomField(
-                        controller: _buzonController,
-                        enabled: !_guardando,
-                        label: "Buzón",
-                        onChanged: (value) async {
-                          await _saveString('buzon', value);
-                          _recalcularTotal();
-                        },
+                      _buildResumenCard(
+                        titulo: "Efectivo en oficina",
+                        valor: _fmt(_totalBuzon),
+                        icono: Icons.credit_card,
+                        onTap: _guardando
+                            ? null
+                            : () => _editarDocumentos('Buzon'),
                       ),
                       const SizedBox(height: 10),
                       _buildCustomField(
