@@ -18,7 +18,7 @@ class _DocumentoItem {
 class RegistroDocumentosPage extends StatefulWidget {
   final int idUsuario;
   final String fecha; // "dd/MM/yyyy"
-  final String producto; // compatibilidad con tu llamada actual
+  final String turno; // compatibilidad con tu llamada actual
   final String banco;
 
   const RegistroDocumentosPage({
@@ -26,7 +26,7 @@ class RegistroDocumentosPage extends StatefulWidget {
     required this.idUsuario,
     required this.fecha,
     required String user,
-    required this.producto, // compatibilidad con tu llamada actual
+    required this.turno, // compatibilidad con tu llamada actual
     required this.banco,
   });
 
@@ -90,7 +90,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
       final rows = await cajeroApi.obtenerDatos(
         idUsuario: widget.idUsuario,
         fecha: widget.fecha,
-        producto: widget.producto, // compatibilidad con tu llamada actual
+        turno: widget.turno, // compatibilidad con tu llamada actual
         banco: banco, // ejemplo de banco, ajustar según sea necesario
       );
 
@@ -185,7 +185,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
       idUsuario: widget.idUsuario,
       fecha: widget.fecha,
       importes: importes,
-      producto: widget.producto, // compatibilidad con tu llamada actual
+      turno: widget.turno, // compatibilidad con tu llamada actual
       banco: banco, // ejemplo de banco, ajustar según sea necesario
     );
   }
@@ -195,7 +195,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
       idUsuario: widget.idUsuario,
       fecha: widget.fecha,
       importes: importes,
-      producto: widget.producto, // compatibilidad con tu llamada actual
+      turno: widget.turno, // compatibilidad con tu llamada actual
       banco: banco, // ejemplo de banco, ajustar según sea necesario
     );
   }
@@ -306,7 +306,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
         );
       case 'Santander':
         return Text(
-          '♨️ Bauchers Santander',
+          '♨️ Santander',
           style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
@@ -320,16 +320,22 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
               fontWeight: FontWeight.bold,
               color: Color.fromARGB(255, 10, 92, 216)),
         );
-      case 'Monedero':
+      case 'Buzon':
         return Text(
-          'Efecticard',
+          'Efectivo oficina',
           style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 251, 113, 0)),
+              color: Color.fromARGB(255, 10, 92, 216)),
         );
       default:
-        return 'Depósitos $banco';
+        return Text(
+          banco,
+          style: TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.bold,
+              color: Colors.black),
+        );;
     }
   }
 

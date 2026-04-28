@@ -35,24 +35,22 @@ class _DatoCorteState extends State<DatoCorte> {
   late String fecha;
   late String user;
   late int idUsuario;
-  late String producto;
+  late String turno;
   late String nombre;
   late String apellidoPaterno;
   late String apellidoMaterno;
 
   late TextEditingController _ventaController;
-  final TextEditingController _buzonController = TextEditingController();
   final TextEditingController _gastosController = TextEditingController();
   final TextEditingController _billetesController = TextEditingController();
   final TextEditingController _monedasController = TextEditingController();
 
   final TelegramApi _corteTelegram = TelegramApi(ApiService());
 
-  double _totalSantander = 0;
-  double _totalMifel = 0;
-  double _totalMonedero = 0;
+  double _totalCobrosTPV = 0;
   double _totalClientes = 0;
   double _totalCajero = 0;
+  double _totalBuzon =0;
   double totalFinal = 0;
 
   bool _guardando = false;
@@ -67,7 +65,7 @@ class _DatoCorteState extends State<DatoCorte> {
   String _fmt(double valor) => _currencyFormat.format(valor);
 
   // Key con contexto (evita mezclar datos entre usuarios/fechas/producto)
-  String _k(String key) => '${key}_${idUsuario}_${fecha}_$producto';
+  String _k(String key) => '${key}_${idUsuario}_${fecha}_$turno';
 
   @override
   void initState() {
@@ -76,7 +74,7 @@ class _DatoCorteState extends State<DatoCorte> {
     fecha = widget.fecha;
     user = widget.user;
     idUsuario = widget.idUsuario;
-    producto = widget.tipoZonaCorte;
+    turno = widget.tipoZonaCorte;
     nombre = widget.nombre;
     apellidoPaterno = widget.apellidoPaterno;
     apellidoMaterno = widget.apellidoMaterno;
@@ -91,13 +89,11 @@ class _DatoCorteState extends State<DatoCorte> {
 
     // Cargar valores texto
     _ventaController.text = _prefs!.getString(_k('ventaDia')) ?? '';
-    _buzonController.text = _prefs!.getString(_k('buzon')) ?? '';
     _gastosController.text = _prefs!.getString(_k('gastos')) ?? '';
 
     // Cargar totales
-    _totalSantander = _prefs!.getDouble(_k('totalSantander')) ?? 0.0;
-    _totalMifel = _prefs!.getDouble(_k('totalMifel')) ?? 0.0;
-    _totalMonedero = _prefs!.getDouble(_k('totalMonedero')) ?? 0.0;
+    _totalCobrosTPV = _prefs!.getDouble(_k('totalCobrosTPV')) ?? 0.0;
+    _totalBuzon = _prefs!.getDouble(_k('totalBuzon')) ?? 0.0;
     _totalCajero = _prefs!.getDouble(_k('totalCajero')) ?? 0.0;
     _totalClientes = _prefs!.getDouble(_k('totalClientes')) ?? 0.0;
 
@@ -111,7 +107,6 @@ class _DatoCorteState extends State<DatoCorte> {
   @override
   void dispose() {
     _ventaController.dispose();
-    _buzonController.dispose();
     _gastosController.dispose();
     _billetesController.dispose();
     _monedasController.dispose();
@@ -121,20 +116,16 @@ class _DatoCorteState extends State<DatoCorte> {
   // ======== RECALCULAR TOTAL ========
   void _recalcularTotal() {
     final venta = double.tryParse(_ventaController.text) ?? 0;
-
-    final buz = double.tryParse(_buzonController.text) ?? 0;
     final gas = double.tryParse(_gastosController.text) ?? 0;
     final billetes = double.tryParse(_billetesController.text) ?? 0;
     final monedas = double.tryParse(_monedasController.text) ?? 0;
 
     setState(() {
       totalFinal = venta -
-          _totalSantander -
-          _totalMifel -
-          _totalMonedero -
+          _totalCobrosTPV -
           _totalClientes -
           _totalCajero -
-          buz -
+          _totalBuzon -
           gas -
           billetes -
           monedas;
@@ -156,78 +147,16 @@ class _DatoCorteState extends State<DatoCorte> {
 
     await _prefs!.remove(_k('ventaDia'));
     await _prefs!.remove(_k('totalCajero'));
-    await _prefs!.remove(_k('buzon'));
+    await _prefs!.remove(_k('totalBuzon'));
     await _prefs!.remove(_k('gastos'));
     await _prefs!.remove(_k('ajustedep'));
-    await _prefs!.remove(_k('totalSantander'));
-    await _prefs!.remove(_k('totalMifel'));
-    await _prefs!.remove(_k('totalMonedero'));
+    await _prefs!.remove(_k('totalCobrosTPV'));
     await _prefs!.remove(_k('totalClientes'));
     await _prefs!.remove(_k('billetes'));
     await _prefs!.remove(_k('monedas'));
   }
 
-  // ======== NAVEGAR A PANTALLAS DE BAUCHERS ========
-/*   Future<void> _editarSantander() async {
-    final resultado = await Navigator.push<double>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SantanderBauchersPage(
-          fecha: fecha,
-          user: user,
-          idUsuario: widget.idUsuario,
-          producto: producto,
-        ),
-      ),
-    );
-
-    if (resultado != null) {
-      setState(() => _totalSantander = resultado);
-      await _saveDouble('totalSantander', resultado);
-      _recalcularTotal();
-    }
-  }
-
-  Future<void> _editarMifel() async {
-    final resultado = await Navigator.push<double>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MifelBauchersPage(
-          fecha: fecha,
-          user: user,
-          idUsuario: widget.idUsuario,
-          producto: producto,
-        ),
-      ),
-    );
-
-    if (resultado != null) {
-      setState(() => _totalMifel = resultado);
-      await _saveDouble('totalMifel', resultado);
-      _recalcularTotal();
-    }
-  }
-
-  Future<void> _editarMonedero() async {
-    final resultado = await Navigator.push<double>(
-      context,
-      MaterialPageRoute(
-        builder: (_) => EfecticarBauchersPage(
-          fecha: fecha,
-          user: user,
-          idUsuario: widget.idUsuario,
-          producto: producto,
-        ),
-      ),
-    );
-
-    if (resultado != null) {
-      setState(() => _totalMonedero = resultado);
-      await _saveDouble('totalMonedero', resultado);
-      _recalcularTotal();
-    }
-  } */
-  // Metodo genérico para navegar a cualquier baucher (Cajero, Santander, Mifel, Monedero)
+  // Metodo genérico para navegar hacia cualquier banco registrado
   Future<void> _editarDocumentos(String banco) async {
     final resultado = await Navigator.push<double>(
       context,
@@ -236,33 +165,15 @@ class _DatoCorteState extends State<DatoCorte> {
             fecha: fecha,
             user: user,
             idUsuario: widget.idUsuario,
-            producto: producto,
+            turno: turno,
             banco: banco),
       ),
     );
 
     if (resultado != null) {
-      switch (banco) {
-        case 'Santander':
-          setState(() => _totalSantander = resultado);
-          await _saveDouble('totalSantander', resultado);
-          _recalcularTotal();
-          break;
-        case 'Mifel':
-          setState(() => _totalMifel = resultado);
-          await _saveDouble('totalMifel', resultado);
-          _recalcularTotal();
-          break;
-        case 'Monedero':
-          setState(() => _totalMonedero = resultado);
-          await _saveDouble('totalMonedero', resultado);
-          _recalcularTotal();
-          break;
-        case 'Cajero':
-          setState(() => _totalCajero = resultado);
-          await _saveDouble('totalCajero', resultado);
-          _recalcularTotal();
-      }
+      setState(() => _totalCobrosTPV = resultado);
+      await _saveDouble('totalCobrosTPV', resultado);
+      _recalcularTotal();
     }
   }
 
@@ -296,13 +207,11 @@ class _DatoCorteState extends State<DatoCorte> {
     final venta = double.tryParse(_ventaController.text) ?? 0;
     final billetes = double.tryParse(_billetesController.text) ?? 0;
     final monedas = double.tryParse(_monedasController.text) ?? 0;
-    final buzon = double.tryParse(_buzonController.text) ?? 0;
     final gastos = double.tryParse(_gastosController.text) ?? 0;
-    final depositos = _totalCajero;
+    final cajero = _totalCajero;
 
-    final santander = _totalSantander;
-    final mifel = _totalMifel;
-    final monedero = _totalMonedero;
+    final cobros_TPV = _totalCobrosTPV;
+    final buzon = _totalBuzon;
     final clientes = _totalClientes;
 
     final total = totalFinal + billetes + monedas;
@@ -323,14 +232,12 @@ class _DatoCorteState extends State<DatoCorte> {
         user,
         producto,
         venta,
-        santander,
-        mifel,
-        monedero,
-        depositos,
+        cobros_TPV,
+        cajero,
         buzon,
         gastos,
         clientes,
-        total,
+        total
       );
 
       await _enviarCorteTelegram();
@@ -389,10 +296,8 @@ class _DatoCorteState extends State<DatoCorte> {
     String usuario,
     String producto,
     double venta,
-    double santander,
-    double mifel,
-    double monedero,
-    double depositos,
+    double cobrosTPV,
+    double cajero,
     double buzon,
     double gastos,
     double clientes,

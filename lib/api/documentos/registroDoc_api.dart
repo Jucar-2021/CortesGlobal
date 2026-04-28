@@ -7,13 +7,13 @@ class BancosApi {
   Future<List<Map<String, dynamic>>> obtenerDatos({
     required int idUsuario,
     required String fecha,
-    required String producto,
+    required String turno,
     required String banco,
   }) async {
     final res = await api.postJson('TarjetasCajero/obtener.php', {
       'idUsuario': idUsuario,
       'fecha': fecha,
-      'producto': producto,
+      'turno': turno,
       'banco': banco,
     });
 
@@ -31,13 +31,13 @@ class BancosApi {
     required int idUsuario,
     required String fecha,
     required List<double> importes,
-    required String producto,
+    required String turno,
     required String banco,
   }) async {
     await api.postJson('TarjetasCajero/registrar.php', {
       'idUsuario': idUsuario,
       'fecha': fecha,
-      'producto': producto,
+      'turno': turno,
       'importes': importes,
       'banco': banco,
     });
@@ -48,13 +48,13 @@ class BancosApi {
     required int idUsuario,
     required String fecha,
     required List<double> importes,
-    required String producto,
+    required String turno,
     required String banco,
   }) async {
     await api.postJson('TarjetasCajero/actualizar.php', {
       'idUsuario': idUsuario,
       'fecha': fecha,
-      'producto': producto,
+      'turno': turno,
       'importes': importes,
       'banco': banco,
     });
