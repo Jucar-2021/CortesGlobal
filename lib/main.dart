@@ -1,5 +1,5 @@
-import '/administrador/homeAdmin.dart';
-import '/api/consumoPHP.dart';
+import 'administrador/homeAdmin.dart';
+import 'api/consumoPHP.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'calendarios/cal_ingresoCortes.dart';

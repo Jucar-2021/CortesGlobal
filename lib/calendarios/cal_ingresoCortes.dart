@@ -117,14 +117,14 @@ class _IngresoState extends State<Ingreso> {
     if (tipoZonaCorte == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Selecciona el tipo de zona: Gasolina o Diésel')),
+            content: Text('Selecciona el turno en qel que abriste turno')),
       );
       return;
     }
     final fecha = _fechaSelec.text;
     if (!_validarFechaSeleccionada()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('La fecha seleccionada no es válida')),
+        const SnackBar(content: Text('No puedes seleccionar una fecha tan lejana al día actual')),
       );
       return;
     }
@@ -324,7 +324,7 @@ class _IngresoState extends State<Ingreso> {
                             const SizedBox(height: 10),
 
                             Text(
-                              "Tipo de zona de corte",
+                              "Horario de inicio de turno",
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
@@ -342,8 +342,8 @@ class _IngresoState extends State<Ingreso> {
                               child: Column(
                                 children: [
                                   RadioListTile<String>(
-                                    title: const Text("Gasolina"),
-                                    value: "Gasolina",
+                                    title: const Text("Mañana"),
+                                    value: "Mañana",
                                     // ignore: deprecated_member_use
                                     groupValue: tipoZonaCorte,
                                     // ignore: deprecated_member_use
@@ -352,8 +352,17 @@ class _IngresoState extends State<Ingreso> {
                                   ),
                                   Divider(height: 1, color: cs.outlineVariant),
                                   RadioListTile<String>(
-                                    title: const Text("Diésel"),
-                                    value: "Diesel",
+                                    title: const Text("Tarde"),
+                                    value: "Tarde",
+                                    groupValue: tipoZonaCorte,
+                                    // ignore: deprecated_member_use
+                                    onChanged: (value) =>
+                                        setState(() => tipoZonaCorte = value),
+                                  ),
+                                  Divider(height: 1, color: cs.outlineVariant),
+                                  RadioListTile<String>(
+                                    title: const Text("Noche"),
+                                    value: "Noche",
                                     groupValue: tipoZonaCorte,
                                     // ignore: deprecated_member_use
                                     onChanged: (value) =>
@@ -384,7 +393,7 @@ class _IngresoState extends State<Ingreso> {
 
                     // Footer discreto
                     Text(
-                      "Consejo: si capturas siempre al cierre, elige la fecha del día.",
+                      "Consejo: si capturas siempre al cierre, elige la fecha del día enque abriste turno.",
                       style: TextStyle(
                         fontSize: 12,
                         // ignore: deprecated_member_use
