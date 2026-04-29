@@ -20,18 +20,17 @@ class DocuementosApi {
     required String fecha,
     required String turno,
     required String banco,
-    int? idbanco,
+    int? idBanco,
   }) async {
     final res = await api.postJson('TarjetasCajero/obtener.php', {
       'idUsuario': idUsuario,
       'fecha': fecha,
       'turno': turno,
       'banco': banco,
-      'idbanco': idbanco,
+      'idBanco': idBanco,
     });
 
     final data = res['data'];
-print(data);
     if (data is List) {
       return data.map((e) => Map<String, dynamic>.from(e)).toList();
     } else {
@@ -46,6 +45,7 @@ print(data);
     required List<double> importes,
     required String turno,
     required String banco,
+    int? idBanco,
   }) async {
     await api.postJson('TarjetasCajero/registrar.php', {
       'idUsuario': idUsuario,
@@ -53,6 +53,7 @@ print(data);
       'turno': turno,
       'importes': importes,
       'banco': banco,
+      'idBanco': idBanco,
     });
   }
 
@@ -63,6 +64,7 @@ print(data);
     required List<double> importes,
     required String turno,
     required String banco,
+    int? idBanco,
   }) async {
     await api.postJson('TarjetasCajero/actualizar.php', {
       'idUsuario': idUsuario,
@@ -70,11 +72,12 @@ print(data);
       'turno': turno,
       'importes': importes,
       'banco': banco,
+      'idBanco': idBanco,
     });
   }
 
   // Eliminacion de datos
-  Future<void> eliminarDatos({required int id, required String banco}) async {
+  Future<void> eliminarDatos({required int id, String? banco}) async {
     print('Eliminando tarjeta TarjetasCajero con id: $id');
     print(' Banco: $banco');
     await api.postJson('TarjetasCajero/eliminar.php', {

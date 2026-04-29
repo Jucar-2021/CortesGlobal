@@ -138,7 +138,7 @@ class _ListaBancosState extends State<ListaBancos> {
     if (total != null && mounted) {
       setState(() {
         final i = _bancos.indexWhere(
-              (c) => (c['Idbanco'] as num?)?.toInt() == idBanco,
+              (c) => (c['IdBanco'] as num?)?.toInt() == idBanco,
         );
 
         if (i != -1) {
@@ -255,7 +255,7 @@ class _ListaBancosState extends State<ListaBancos> {
                                 onPressed: () async {
                                   await _abrirCapturaTPV(
                                     idBanco: idBanco,
-                                    banco: nombreBanco,
+                                   banco: nombreBanco,
 
                                   );
                                 },

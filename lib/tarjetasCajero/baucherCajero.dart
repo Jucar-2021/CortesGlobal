@@ -28,7 +28,7 @@ class RegistroDocumentosPage extends StatefulWidget {
     required this.fecha,
     required this.turno, // compatibilidad con tu llamada actual
     required this.banco,
-    this.idBanco
+    this.idBanco,
   });
 
   @override
@@ -61,8 +61,8 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
     print('ID Usuario: ${widget.idUsuario}');
     print('Fecha: ${widget.fecha}');
     print('Turno: ${widget.turno}');
-    print ('Banco: ${widget.banco}');
-    print(widget.idUsuario);
+    print('Banco: ${widget.banco}');
+    print('IDBanco: ${widget.idBanco}');
   }
 
   @override
@@ -82,8 +82,10 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
     );
   }
 
-  _DocumentoItem _itemDesdeBD(
-      {required int idRegistros, required double importe}) {
+  _DocumentoItem _itemDesdeBD({
+    required int idRegistros,
+    required double importe,
+  }) {
     return _DocumentoItem(
       idRegistros: idRegistros,
       controller: TextEditingController(text: importe.toStringAsFixed(2)),
@@ -94,16 +96,19 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
   // ===================== CARGA INICIAL =====================
   Future<void> _cargarDatosIniciales() async {
     try {
+      // Regla: si viene idBanco, banco debe ir vacío.
+      final String bancoRequest = widget.idBanco != null ? '' : banco;
+
       final rows = await doc_Api.obtenerDatos(
         idUsuario: widget.idUsuario,
         fecha: widget.fecha,
-        turno: widget.turno, // compatibilidad con tu llamada actual
-        banco: banco, // ejemplo de banco, ajustar según sea necesario
+        turno: widget.turno,
+        banco: bancoRequest,
+        idBanco: widget.idBanco,
       );
 
       if (!mounted) return;
 
-      // limpiar items actuales
       for (final it in _items) {
         it.controller.dispose();
         it.focusNode.dispose();
@@ -122,9 +127,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
         _yaExistia = false;
       }
 
-      // deja un campo extra vacío al final
       _items.add(_nuevoItemVacio());
-
       _recalcularTotal();
     } catch (e) {
       if (!mounted) return;
@@ -188,23 +191,39 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
 
   // ===================== GUARDAR / ACTUALIZAR =====================
   Future<void> _guardarNuevo(List<double> importes) async {
-    await doc_Api.registrarDatos(
-      idUsuario: widget.idUsuario,
-      fecha: widget.fecha,
-      importes: importes,
-      turno: widget.turno, // compatibilidad con tu llamada actual
-      banco: banco, // ejemplo de banco, ajustar según sea necesario
-    );
+    try {
+      final String bancoRequest = widget.idBanco != null ? '' : banco;
+
+      await doc_Api.registrarDatos(
+        idUsuario: widget.idUsuario,
+        fecha: widget.fecha,
+        importes: importes,
+        turno: widget.turno, // compatibilidad con tu llamada actual
+        banco: bancoRequest, // ejemplo de banco, ajustar según sea necesario
+        idBanco: widget.idBanco,
+      );
+    } catch (e) {
+      print('Error en _guardarNuevo: $e');
+      rethrow; // para que el error se maneje en el catch de _guardar
+    }
   }
 
   Future<void> _actualizar(List<double> importes) async {
-    await doc_Api.actualizarDatos(
-      idUsuario: widget.idUsuario,
-      fecha: widget.fecha,
-      importes: importes,
-      turno: widget.turno, // compatibilidad con tu llamada actual
-      banco: banco, // ejemplo de banco, ajustar según sea necesario
-    );
+    try {
+      final String bancoRequest = widget.idBanco != null ? '' : banco;
+      await doc_Api.actualizarDatos(
+        idUsuario: widget.idUsuario,
+        fecha: widget.fecha,
+        importes: importes,
+        turno: widget.turno, // compatibilidad con tu llamada actual
+        banco: bancoRequest, // ejemplo de banco, ajustar según sea necesario
+        idBanco: widget.idBanco,
+      );
+    } catch (e) {
+      print('Error en _actualizar: $e');
+      rethrow; // para que el error se maneje en el catch de _guardar
+    }
+    ;
   }
 
   Future<void> _guardar() async {
@@ -241,7 +260,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
       setState(() => _guardando = false);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al registrar depósitos: $e')),
+        SnackBar(content: Text('>>>Error al registrar depósitos: $e')),
       );
     }
   }
@@ -270,7 +289,8 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
     }
 
     try {
-      await doc_Api.eliminarDatos(id: item.idRegistros!, banco: banco);
+      final String bancoRequest = widget.idBanco != null ? '' : banco;
+      await doc_Api.eliminarDatos(id: item.idRegistros!, banco: bancoRequest);
 
       if (!mounted) return;
 
@@ -288,14 +308,17 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
       _recalcularTotal();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al eliminar: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al eliminar: $e')));
     }
   }
 
-  final NumberFormat _currencyFormat =
-      NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   String _fmt(double valor) {
     return _currencyFormat.format(valor);
@@ -307,42 +330,48 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
         return Text(
           'Depósitos cajero',
           style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 251, 113, 0)),
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 251, 113, 0),
+          ),
         );
       case 'Santander':
         return Text(
           '♨️ Santander',
           style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 226, 28, 14)),
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 226, 28, 14),
+          ),
         );
       case 'Mifel':
         return Text(
           'Mifel',
           style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 10, 92, 216)),
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 10, 92, 216),
+          ),
         );
       case 'Buzon':
         return Text(
           'Efectivo oficina',
           style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Color.fromARGB(255, 10, 92, 216)),
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Color.fromARGB(255, 10, 92, 216),
+          ),
         );
       default:
         return Text(
           banco,
           style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.bold,
-              color: Colors.black),
-        );;
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        );
+        ;
     }
   }
 
@@ -354,19 +383,16 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
       if (msg != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(msg)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(msg)));
         });
         _errorCarga = null;
       }
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: _titulo(banco),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: _titulo(banco), centerTitle: true),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : Stack(
@@ -401,8 +427,9 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
                                       : TextInputAction.next;
 
                                   return Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 6,
+                                    ),
                                     child: Row(
                                       children: [
                                         Expanded(
@@ -410,9 +437,10 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
                                             controller: item.controller,
                                             focusNode: item.focusNode,
                                             enabled: !_guardando,
-                                            keyboardType: const TextInputType
-                                                .numberWithOptions(
-                                                decimal: true),
+                                            keyboardType:
+                                                const TextInputType.numberWithOptions(
+                                                  decimal: true,
+                                                ),
                                             textInputAction: action,
                                             decoration: InputDecoration(
                                               labelText:
@@ -423,9 +451,9 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
                                               ),
                                               contentPadding:
                                                   const EdgeInsets.symmetric(
-                                                horizontal: 14,
-                                                vertical: 14,
-                                              ),
+                                                    horizontal: 14,
+                                                    vertical: 14,
+                                                  ),
                                             ),
                                             onChanged: (value) =>
                                                 _onChangedCampo(index, value),
@@ -437,8 +465,9 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
                                         Container(
                                           decoration: BoxDecoration(
                                             color: Colors.red.withOpacity(0.08),
-                                            borderRadius:
-                                                BorderRadius.circular(10),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                           ),
                                           child: Focus(
                                             canRequestFocus: false,
@@ -451,8 +480,9 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
                                               ),
                                               onPressed: _guardando
                                                   ? null
-                                                  : () =>
-                                                      _eliminarRegistro(index),
+                                                  : () => _eliminarRegistro(
+                                                      index,
+                                                    ),
                                             ),
                                           ),
                                         ),
@@ -573,7 +603,9 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
                       child: Center(
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 18, vertical: 16),
+                            horizontal: 18,
+                            vertical: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(14),

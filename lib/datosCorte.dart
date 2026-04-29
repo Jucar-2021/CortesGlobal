@@ -159,7 +159,7 @@ class _DatoCorteState extends State<DatoCorte> {
   }
 
   // Metodo genérico para navegar hacia cualquier banco registrado
-  Future<void> _editarDocumentos(String banco) async {
+  Future<void> _editarCajero(String banco) async {
     final resultado = await Navigator.push<double>(
       context,
       MaterialPageRoute(
@@ -172,8 +172,27 @@ class _DatoCorteState extends State<DatoCorte> {
     );
 
     if (resultado != null) {
-      setState(() => _totalCobrosTPV = resultado);
-      await _saveDouble('totalCobrosTPV', resultado);
+      setState(() => _totalCajero = resultado);
+      await _saveDouble('totalCajero', resultado);
+      _recalcularTotal();
+    }
+  }
+  // Metodo genérico para navegar hacia cualquier banco registrado
+  Future<void> _editarBuzon(String banco) async {
+    final resultado = await Navigator.push<double>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RegistroDocumentosPage(
+            fecha: fecha,
+            idUsuario: widget.idUsuario,
+            turno: turno,
+            banco: banco),
+      ),
+    );
+
+    if (resultado != null) {
+      setState(() => _totalBuzon = resultado);
+      await _saveDouble('totalBuzon', resultado);
       _recalcularTotal();
     }
   }
@@ -192,8 +211,8 @@ class _DatoCorteState extends State<DatoCorte> {
     );
 
     if (resultado != null) {
-      setState(() => _totalClientes = resultado);
-      await _saveDouble('totalClientes', resultado);
+      setState(() => _totalCobrosTPV = resultado);
+      await _saveDouble('totalCobrosTPV', resultado);
       _recalcularTotal();
     }
   }
@@ -506,7 +525,7 @@ class _DatoCorteState extends State<DatoCorte> {
                         icono: Icons.account_balance,
                         onTap: _guardando
                             ? null
-                            : () => _editarDocumentos('Cajero'),
+                            : () => _editarCajero('Cajero'),
                       ),
                       const SizedBox(height: 10),
                       _buildResumenCard(
@@ -515,7 +534,7 @@ class _DatoCorteState extends State<DatoCorte> {
                         icono: Icons.credit_card,
                         onTap: _guardando
                             ? null
-                            : () => _editarDocumentos('Buzon'),
+                            : () => _editarBuzon('Buzon'),
                       ),
                       const SizedBox(height: 10),
                       _buildCustomField(
