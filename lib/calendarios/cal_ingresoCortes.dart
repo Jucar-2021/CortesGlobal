@@ -51,7 +51,7 @@ class _IngresoState extends State<Ingreso> {
   final TextEditingController _fechaSelec = TextEditingController();
   final TextEditingController _fechaVisual = TextEditingController();
   DateTime? _fechaSeleccionada;
-  String? tipoZonaCorte;
+  String? turnoSeleccionado;
 
   late String user;
   late int idUsuario;
@@ -114,7 +114,7 @@ class _IngresoState extends State<Ingreso> {
       return;
     }
 
-    if (tipoZonaCorte == null) {
+    if (turnoSeleccionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Selecciona el turno en qel que abriste turno')),
@@ -129,7 +129,7 @@ class _IngresoState extends State<Ingreso> {
       return;
     }
 
-    final idCorte = await _validarCorte(fecha, idUsuario, tipoZonaCorte!);
+    final idCorte = await _validarCorte(fecha, idUsuario, turnoSeleccionado!);
 
     if (idCorte != null) {
       showDialog(
@@ -171,7 +171,7 @@ class _IngresoState extends State<Ingreso> {
             nombre: nombre,
             apellidoPaterno: apellidoPaterno,
             apellidoMaterno: apellidoMaterno,
-            tipoZonaCorte: tipoZonaCorte!,
+            turno: turnoSeleccionado!,
           ),
         ),
       );
@@ -179,12 +179,12 @@ class _IngresoState extends State<Ingreso> {
   }
 
   Future<int?> _validarCorte(
-      String fecha, int idUsuario, String producto) async {
+      String fecha, int idUsuario, String turno) async {
     try {
       final idCorte = await validacionCorteApi.validarCorteRegistrado(
         idUsuario: idUsuario,
         fecha: fecha,
-        producto: producto,
+        turno: turnoSeleccionado!,
       );
       return idCorte;
     } catch (e) {
@@ -345,28 +345,28 @@ class _IngresoState extends State<Ingreso> {
                                     title: const Text("Mañana"),
                                     value: "Mañana",
                                     // ignore: deprecated_member_use
-                                    groupValue: tipoZonaCorte,
+                                    groupValue: turnoSeleccionado,
                                     // ignore: deprecated_member_use
                                     onChanged: (value) =>
-                                        setState(() => tipoZonaCorte = value),
+                                        setState(() => turnoSeleccionado = value),
                                   ),
                                   Divider(height: 1, color: cs.outlineVariant),
                                   RadioListTile<String>(
                                     title: const Text("Tarde"),
                                     value: "Tarde",
-                                    groupValue: tipoZonaCorte,
+                                    groupValue: turnoSeleccionado,
                                     // ignore: deprecated_member_use
                                     onChanged: (value) =>
-                                        setState(() => tipoZonaCorte = value),
+                                        setState(() => turnoSeleccionado = value),
                                   ),
                                   Divider(height: 1, color: cs.outlineVariant),
                                   RadioListTile<String>(
                                     title: const Text("Noche"),
                                     value: "Noche",
-                                    groupValue: tipoZonaCorte,
+                                    groupValue: turnoSeleccionado,
                                     // ignore: deprecated_member_use
                                     onChanged: (value) =>
-                                        setState(() => tipoZonaCorte = value),
+                                        setState(() => turnoSeleccionado = value),
                                   ),
                                 ],
                               ),

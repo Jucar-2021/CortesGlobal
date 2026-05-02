@@ -346,15 +346,7 @@ class _ClientesCapturaPageState extends State<ClientesCapturaPage> {
                         padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
                         child: Column(
                           children: [
-                            Text(
-                              'Importes de cargas: $razonSocial.',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
+
                             Expanded(
                               child: ListView.builder(
                                 padding: const EdgeInsets.only(bottom: 12),

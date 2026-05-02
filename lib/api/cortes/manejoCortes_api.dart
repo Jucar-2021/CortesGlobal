@@ -9,13 +9,13 @@ class ManejocortesApi {
   Future<int?> validarCorteRegistrado({
     required int idUsuario,
     required String fecha,
-    required String producto,
+    required String turno,
   }) async {
     try {
       final res = await api.postJson('Cortes/validarExis.php', {
         'idUsuario': idUsuario,
         'fecha': fecha,
-        'producto': producto,
+        'turno': turno,
       });
 
       if (res['ok'] == true && res['idCorte'] != null) {

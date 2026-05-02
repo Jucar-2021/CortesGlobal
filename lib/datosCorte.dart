@@ -15,7 +15,7 @@ class DatoCorte extends StatefulWidget {
     required this.fecha,
     required this.user,
     required this.idUsuario,
-    required this.tipoZonaCorte,
+    required this.turno,
     required this.nombre,
     required this.apellidoPaterno,
     required this.apellidoMaterno,
@@ -24,7 +24,7 @@ class DatoCorte extends StatefulWidget {
   final String fecha;
   final String user;
   final int idUsuario;
-  final String tipoZonaCorte;
+  final String turno;
   final String nombre;
   final String apellidoPaterno;
   final String apellidoMaterno;
@@ -52,7 +52,7 @@ class _DatoCorteState extends State<DatoCorte> {
   double _totalCobrosTPV = 0;
   double _totalClientes = 0;
   double _totalCajero = 0;
-  double _totalBuzon =0;
+  double _totalBuzon = 0;
   double totalFinal = 0;
 
   bool _guardando = false;
@@ -61,8 +61,11 @@ class _DatoCorteState extends State<DatoCorte> {
   bool _prefsReady = false;
 
   // ======== FORMATO DINERO ========
-  final NumberFormat _currencyFormat =
-      NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   String _fmt(double valor) => _currencyFormat.format(valor);
 
@@ -76,7 +79,7 @@ class _DatoCorteState extends State<DatoCorte> {
     fecha = widget.fecha;
     user = widget.user;
     idUsuario = widget.idUsuario;
-    turno = widget.tipoZonaCorte;
+    turno = widget.turno;
     nombre = widget.nombre;
     apellidoPaterno = widget.apellidoPaterno;
     apellidoMaterno = widget.apellidoMaterno;
@@ -123,7 +126,8 @@ class _DatoCorteState extends State<DatoCorte> {
     final monedas = double.tryParse(_monedasController.text) ?? 0;
 
     setState(() {
-      totalFinal = venta -
+      totalFinal =
+          venta -
           _totalCobrosTPV -
           _totalClientes -
           _totalCajero -
@@ -164,10 +168,11 @@ class _DatoCorteState extends State<DatoCorte> {
       context,
       MaterialPageRoute(
         builder: (_) => RegistroDocumentosPage(
-            fecha: fecha,
-            idUsuario: widget.idUsuario,
-            turno: turno,
-            banco: banco),
+          fecha: fecha,
+          idUsuario: widget.idUsuario,
+          turno: turno,
+          banco: banco,
+        ),
       ),
     );
 
@@ -177,16 +182,18 @@ class _DatoCorteState extends State<DatoCorte> {
       _recalcularTotal();
     }
   }
+
   // Metodo genérico para navegar hacia cualquier banco registrado
   Future<void> _editarBuzon(String banco) async {
     final resultado = await Navigator.push<double>(
       context,
       MaterialPageRoute(
         builder: (_) => RegistroDocumentosPage(
-            fecha: fecha,
-            idUsuario: widget.idUsuario,
-            turno: turno,
-            banco: banco),
+          fecha: fecha,
+          idUsuario: widget.idUsuario,
+          turno: turno,
+          banco: banco,
+        ),
       ),
     );
 
@@ -250,7 +257,7 @@ class _DatoCorteState extends State<DatoCorte> {
     final gastos = double.tryParse(_gastosController.text) ?? 0;
     final cajero = _totalCajero;
 
-    final cobros_TPV = _totalCobrosTPV;
+    final cobros_tpv = _totalCobrosTPV;
     final buzon = _totalBuzon;
     final clientes = _totalClientes;
 
@@ -267,17 +274,17 @@ class _DatoCorteState extends State<DatoCorte> {
     setState(() => _guardando = true);
     try {
       await _guardarCorte(
-        fecha,
         idUsuario,
+        fecha,
         user,
         turno,
         venta,
-        cobros_TPV,
+        cobros_tpv,
+        clientes,
         cajero,
         buzon,
         gastos,
-        clientes,
-        total
+
       );
 
       await _enviarCorteTelegram();
@@ -293,9 +300,9 @@ class _DatoCorteState extends State<DatoCorte> {
       if (!mounted) return;
       setState(() => _guardando = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al guardar el corte: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error al guardar el corte: $e")));
     }
   }
 
@@ -319,7 +326,9 @@ class _DatoCorteState extends State<DatoCorte> {
                 Text(
                   'Guardando tu corte $user ...',
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),
@@ -331,17 +340,17 @@ class _DatoCorteState extends State<DatoCorte> {
 
   // ======== GUARDAR CORTE EN BD ========
   Future<void> _guardarCorte(
-    String fecha,
     int idUsuario,
+    String fecha,
     String usuario,
     String turno,
     double venta,
-    double cobrosTPV,
+    double cobros_tpv,
+    double clientes,
     double cajero,
     double buzon,
     double gastos,
-    double clientes,
-    double total,
+
   ) async {
     final corteApi = CorteApi(ApiService());
 
@@ -351,18 +360,20 @@ class _DatoCorteState extends State<DatoCorte> {
       usuario: "$nombre $apellidoPaterno $apellidoMaterno",
       turno: turno,
       venta: venta,
-      cobrosTPV: cobrosTPV,
+      cobros_tpv: cobros_tpv,
+      clientes: clientes,
       cajero: cajero,
       buzon: buzon,
       gastos: gastos,
-      clientes: clientes,
-      efectivoEntregado: total,
+
+
     );
   }
 
   // ======== ENVIAR A TELEGRAM ========
   Future<void> _enviarCorteTelegram() async {
-    final mensaje = '''
+    final mensaje =
+        '''
 <b>⛽ CORTE DESPACHADOR</b>
 👤 <b>$nombre $apellidoPaterno $apellidoMaterno</b>
 
@@ -421,11 +432,14 @@ class _DatoCorteState extends State<DatoCorte> {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Confirmar guardado",
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            title: const Text(
+              "Confirmar guardado",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             content: const Text(
-                "¿Estás seguro de que deseas guardar este corte?\n\nAsegúrate de que toda la información sea correcta.",
-                style: TextStyle(fontWeight: FontWeight.w400)),
+              "¿Estás seguro de que deseas guardar este corte?\n\nAsegúrate de que toda la información sea correcta.",
+              style: TextStyle(fontWeight: FontWeight.w400),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
@@ -454,27 +468,18 @@ class _DatoCorteState extends State<DatoCorte> {
           children: [
             Text(
               "$nombre $apellidoPaterno $apellidoMaterno",
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 2),
             Text(
               "Corte de la $turno, fecha:",
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
               textAlign: TextAlign.center,
             ),
             Text(
               _formatoFecha(fecha),
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
           ],
@@ -532,9 +537,7 @@ class _DatoCorteState extends State<DatoCorte> {
                         titulo: "Efectivo en oficina",
                         valor: _fmt(_totalBuzon),
                         icono: Icons.credit_card,
-                        onTap: _guardando
-                            ? null
-                            : () => _editarBuzon('Buzon'),
+                        onTap: _guardando ? null : () => _editarBuzon('Buzon'),
                       ),
                       const SizedBox(height: 10),
                       _buildCustomField(
@@ -697,21 +700,14 @@ class _DatoCorteState extends State<DatoCorte> {
         labelText: label,
         filled: true,
         fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(
-            color: Colors.blueGrey.withOpacity(0.25),
-          ),
+          borderSide: BorderSide(color: Colors.blueGrey.withOpacity(0.25)),
         ),
         focusedBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(14)),
-          borderSide: BorderSide(
-            color: Color(0xFF1565C0),
-            width: 2,
-          ),
+          borderSide: BorderSide(color: Color(0xFF1565C0), width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 14,
@@ -732,9 +728,7 @@ class _DatoCorteState extends State<DatoCorte> {
       color: Colors.white,
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 10),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: const Color(0xFFE3F2FD),
@@ -746,10 +740,7 @@ class _DatoCorteState extends State<DatoCorte> {
         ),
         subtitle: Text(
           valor,
-          style: const TextStyle(
-            fontSize: 15,
-            color: Colors.black87,
-          ),
+          style: const TextStyle(fontSize: 15, color: Colors.black87),
         ),
         trailing: IconButton(
           icon: const Icon(Icons.edit, color: Color(0xFF1565C0)),
