@@ -21,10 +21,10 @@ class VerCorteAPI {
   Future<List<dynamic>> consumoClientes(
       {required String idUsuario,
       required String fecha,
-      required String producto}) async {
+      required String turno}) async {
     final response = await api.postJson(
       'Consultas/Cortes/consumoClientes.php',
-      {'idUsuario': idUsuario, 'fecha': fecha, 'producto': producto},
+      {'idUsuario': idUsuario, 'fecha': fecha, 'turno': turno},
     );
 
     final data = response['data'];

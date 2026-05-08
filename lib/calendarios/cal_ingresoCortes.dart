@@ -78,6 +78,7 @@ class _IngresoState extends State<Ingreso> {
   @override
   void dispose() {
     _fechaSelec.dispose();
+    _fechaVisual.dispose();
     super.dispose();
   }
 
@@ -253,10 +254,13 @@ class _IngresoState extends State<Ingreso> {
           ),
         ),
         child: SafeArea(
-          child: Center(
+          child: Align(
+            alignment: Alignment.topCenter,
+
             child: ConstrainedBox(
+
               constraints: const BoxConstraints(maxWidth: 520),
-              child: Padding(
+              child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
@@ -389,7 +393,7 @@ class _IngresoState extends State<Ingreso> {
                       ),
                     ),
 
-                    const Spacer(),
+
 
                     // Footer discreto
                     Text(

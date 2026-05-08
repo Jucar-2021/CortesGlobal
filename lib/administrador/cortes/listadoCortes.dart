@@ -45,13 +45,13 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
   Future<List<dynamic>> _consumoClientes({
     required String idUsuario,
     required String fecha,
-    required String producto,
+    required String turno,
   }) async {
     try {
       final data = await consumoClientesAPI.consumoClientes(
         idUsuario: idUsuario,
         fecha: fecha,
-        producto: producto,
+        turno: turno,
       );
       return data;
     } catch (e) {
@@ -343,7 +343,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                               final consumoClientes = await _consumoClientes(
                                 idUsuario: corte['idUsuario'].toString(),
                                 fecha: fecha,
-                                producto: corte['producto'].toString(),
+                                turno: corte['turno'].toString(),
                               );
 
                               _showCorteDetails(
@@ -397,8 +397,8 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                                     children: [
                                       _buildInfoChip(
                                         icon: Icons.local_gas_station_rounded,
-                                        label: "Producto",
-                                        value: "${corte['producto']}",
+                                        label: "Turno",
+                                        value: "${corte['turno']}",
                                         color: Colors.green,
                                       ),
                                       _buildInfoChip(
