@@ -74,8 +74,29 @@ class ClientesApi {
   }
 
   Future<void> eliminarImporteCliente(int idConsumo) async {
-    await api.postJson('Clientes/eliminar.php', {
-      'idConsumo': idConsumo,
-    });
+    await api.postJson('Clientes/eliminar.php', {'idConsumo': idConsumo});
+  }
+
+  Future<double> obtenerTotalCliente({
+    required int idCliente,
+    required int idUsuario,
+    required String fecha,
+    required String turno,
+  }) async {
+    final rows = await getClienteconsumo(
+      idCliente: idCliente,
+      idUsuario: idUsuario,
+      fecha: fecha,
+      turno: turno,
+    );
+
+    double total = 0.0;
+
+    for (final row in rows) {
+      final importe = (row['importe'] as num?)?.toDouble() ?? 0.0;
+      total += importe;
+    }
+
+    return total;
   }
 }

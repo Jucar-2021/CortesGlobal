@@ -52,6 +52,7 @@ class _ListaBancosState extends State<ListaBancos> {
 
     final bancos = await fetchBancos();
     await _aplicarSaldosGuardados();
+    await _recargarTotalesTPV();
 
     return bancos;
   }
@@ -91,9 +92,9 @@ class _ListaBancosState extends State<ListaBancos> {
 
     final Map<String, double> saldos = {};
 
-    for (final cliente in _bancos) {
-      final id = (cliente['IdBanco'] as num?)?.toInt() ?? 0;
-      final saldo = cliente['saldoTotal'];
+    for (final banco in _bancos) {
+      final id = (banco['IdBanco'] as num?)?.toInt() ?? 0;
+      final saldo = banco['saldoTotal'];
 
       final valor = saldo is num
           ? saldo.toDouble()
@@ -105,17 +106,43 @@ class _ListaBancosState extends State<ListaBancos> {
     await _prefs!.setString(_saldosKey, jsonEncode(saldos));
   }
 
-  Future<void> clearDraft() async {
-    if (!_prefsReady || _prefs == null) return;
+  Future<void> _recargarTotalesTPV() async {
+    if (_bancos.isEmpty) return;
 
-    await _prefs!.remove(_saldosKey);
+    try {
+      final resultados = await Future.wait(
+        _bancos.map((banco) async {
+          final idBanco = (banco['IdBanco'] as num?)?.toInt() ?? 0;
 
-    if (!mounted) return;
-    setState(() {
-      for (final cliente in _bancos) {
-        cliente['saldoTotal'] = 0.0;
-      }
-    });
+          final total = await docuementosApi.obtenerTotalDatos(
+            idBanco: idBanco,
+            idUsuario: widget.idUsuario,
+            fecha: widget.fecha,
+            turno: widget.turno,
+          );
+
+          return MapEntry(idBanco, total);
+        }),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        for (final entry in resultados) {
+          final i = _bancos.indexWhere(
+                (c) => (c['IdBanco'] as num?)?.toInt() == entry.key,
+          );
+
+          if (i != -1) {
+            _bancos[i]['saldoTotal'] = entry.value;
+          }
+        }
+      });
+
+      await _guardarSaldosLocales();
+    } catch (e) {
+      debugPrint('Error recargando totales de clientes: $e');
+    }
   }
 
   Future<void> _abrirCapturaTPV({
@@ -135,19 +162,9 @@ class _ListaBancosState extends State<ListaBancos> {
       ),
     );
 
-    if (total != null && mounted) {
-      setState(() {
-        final i = _bancos.indexWhere(
-              (c) => (c['IdBanco'] as num?)?.toInt() == idBanco,
-        );
+    if (!mounted) return;
 
-        if (i != -1) {
-          _bancos[i]['saldoTotal'] = total;
-        }
-      });
-
-      await _guardarSaldosLocales();
-    }
+    await _recargarTotalesTPV();
   }
 
   double _calcularTotalGeneral() {

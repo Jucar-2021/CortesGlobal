@@ -1,3 +1,4 @@
+import 'package:cortes_despachador/tarjetasCajero/listadoTPV.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../api/consumoPHP.dart';
@@ -68,66 +69,58 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
     Navigator.pop(context);
 
     switch (concepto) {
-      case "Santander":
+      case "Cobros_tpv":
         Navigator.push(
-            this.context,
-            MaterialPageRoute(
-              builder: (_) => RegistroDocumentosPage(
-                idUsuario: corte['idUsuario'],
-                fecha: corte['fecha'].toString(),
-                turno: corte['turno'].toString(),
-                banco: 'Santander',
-              ),
-            ));
-        break;
-      case "Mifel":
-        Navigator.push(
-            this.context,
-            MaterialPageRoute(
-              builder: (_) => RegistroDocumentosPage(
-                idUsuario: corte['idUsuario'],
-                fecha: corte['fecha'].toString(),
-                turno: corte['turno'].toString(),
-                banco: 'Mifel',
-              ),
-            ));
-        break;
-      case "Monedero":
-        Navigator.push(
-            this.context,
-            MaterialPageRoute(
-              builder: (_) => RegistroDocumentosPage(
-                idUsuario: corte['idUsuario'],
-                fecha: corte['fecha'].toString(),
-                turno: corte['turno'].toString(),
-                banco: 'Monedero',
-              ),
-            ));
+          this.context,
+          MaterialPageRoute(
+            builder: (_) => ListaBancos(
+              idUsuario: corte['idUsuario'],
+              fecha: corte['fecha'].toString(),
+              user: corte['usuario'].toString(),
+              turno: corte['turno'].toString(),
+
+            ),
+          ),
+        );
         break;
       case "Clientes":
         Navigator.push(
-            this.context,
-            MaterialPageRoute(
-              builder: (_) => Listadoclientes(
-                user: corte['usuario'].toString(),
-                idUsuario: corte['idUsuario'],
-                fecha: corte['fecha'].toString(),
-                turno: corte['turno'].toString(),
-              ),
-            ));
+          this.context,
+          MaterialPageRoute(
+            builder: (_) => Listadoclientes(
+              user: corte['usuario'].toString(),
+              idUsuario: corte['idUsuario'],
+              fecha: corte['fecha'].toString(),
+              turno: corte['turno'].toString(),
+            ),
+          ),
+        );
         break;
       case "Global":
         Navigator.push(
-            this.context,
-            MaterialPageRoute(
-              builder: (_) => RegistroDocumentosPage(
-
-                idUsuario: corte['idUsuario'],
-                fecha: corte['fecha'].toString(),
-                turno: corte['turno'].toString(),
-                banco: 'Cajero',
-              ),
-            ));
+          this.context,
+          MaterialPageRoute(
+            builder: (_) => RegistroDocumentosPage(
+              idUsuario: corte['idUsuario'],
+              fecha: corte['fecha'].toString(),
+              turno: corte['turno'].toString(),
+              banco: 'Cajero',
+            ),
+          ),
+        );
+        break;
+      case "Buzon":
+        Navigator.push(
+          this.context,
+          MaterialPageRoute(
+            builder: (_) => RegistroDocumentosPage(
+              idUsuario: corte['idUsuario'],
+              fecha: corte['fecha'].toString(),
+              turno: corte['turno'].toString(),
+              banco: 'Buzon',
+            ),
+          ),
+        );
         break;
     }
   }
@@ -137,47 +130,41 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
-          elevation: 0,
-          centerTitle: true,
-          backgroundColor: const Color(0xFF005498),
-          foregroundColor: Colors.white,
-          title: Column(
-            children: [
-              const Text(
-                "Cortes del día",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                fecha,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            ],
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: const Color(0xFF005498),
+        foregroundColor: Colors.white,
+        title: Column(
+          children: [
+            const Text(
+              "Cortes del día",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              fecha,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w400),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                verCorteAPI.obtenerCortes(fecha: fecha);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Refrescando cortes...')),
+              );
+            },
+            icon: Icon(Icons.refresh),
           ),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  setState(() {
-                    verCorteAPI.obtenerCortes(fecha: fecha);
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Refrescando cortes...')),
-                  );
-                },
-                icon: Icon(Icons.refresh))
-          ]),
+        ],
+      ),
       body: FutureBuilder<List<dynamic>>(
         future: verCorteAPI.obtenerCortes(fecha: fecha),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             print("Error al obtener cortes: ${snapshot.error}");
             return Center(
@@ -268,10 +255,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF005498),
-                        Color(0xFF1976D2),
-                      ],
+                      colors: [Color(0xFF005498), Color(0xFF1976D2)],
                     ),
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
@@ -362,10 +346,12 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFF005498)
-                                              .withOpacity(0.10),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          color: const Color(
+                                            0xFF005498,
+                                          ).withOpacity(0.10),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: const Icon(
                                           Icons.person_rounded,
@@ -494,8 +480,11 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
     );
   }
 
-  final NumberFormat _currencyFormat =
-      NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   String _fmt(double valor) => _currencyFormat.format(valor);
 
@@ -520,8 +509,10 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
       context: context,
       builder: (dialogContext) {
         return Dialog(
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 24,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -569,8 +560,8 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                     child: Column(
                       children: [
                         _buildHighlightCard(
-                          title: "Producto",
-                          value: "${corte['producto']}",
+                          title: "Turno",
+                          value: "${corte['turno']}",
                           icon: Icons.local_gas_station_rounded,
                           color: const Color(0xFF0B7A00),
                         ),
@@ -588,35 +579,17 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                           icon: Icons.credit_card_rounded,
                           children: [
                             _buildDetailRow(
-                              "Santander",
-                              _fmt(_parseToDouble(corte['santander'])),
+                              "Total tarjetas",
+                              _fmt(_parseToDouble(corte['cobros_tpv'])),
                               showEditButton: true,
                               onEdit: () => _onEditarConcepto(
                                 dialogContext,
                                 corte: corte,
-                                concepto: "Santander",
-                              ),
-                            ),
-                            _buildDetailRow(
-                              "Mifel",
-                              _fmt(_parseToDouble(corte['mifel'])),
-                              showEditButton: true,
-                              onEdit: () => _onEditarConcepto(
-                                dialogContext,
-                                corte: corte,
-                                concepto: "Mifel",
-                              ),
-                            ),
-                            _buildDetailRow(
-                              "Monedero",
-                              _fmt(_parseToDouble(corte['monedero'])),
-                              showEditButton: true,
-                              onEdit: () => _onEditarConcepto(
-                                dialogContext,
-                                corte: corte,
-                                concepto: "Monedero",
-                              ),
-                            ),
+                                concepto: "Cobros_tpv",
+                            ),),
+
+
+
                             _buildDetailRow(
                               "Clientes",
                               _fmt(_parseToDouble(corte['clientes'])),
@@ -636,7 +609,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                           children: [
                             _buildDetailRow(
                               "Global",
-                              _fmt(_parseToDouble(corte['depositos'])),
+                              _fmt(_parseToDouble(corte['cajero'])),
                               showEditButton: true,
                               onEdit: () => _onEditarConcepto(
                                 dialogContext,
@@ -647,6 +620,12 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                             _buildDetailRow(
                               "Buzón",
                               _fmt(_parseToDouble(corte['buzon'])),
+                              showEditButton: true,
+                              onEdit: () => _onEditarConcepto(
+                                dialogContext,
+                                corte: corte,
+                                concepto: "Buzon",
+                              ),
                             ),
                             _buildDetailRow(
                               "Gastos",
@@ -705,9 +684,9 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                                         ),
                                         const SizedBox(width: 10),
                                         Text(
-                                          _fmt(_parseToDouble(
-                                            cliente['importe'],
-                                          )),
+                                          _fmt(
+                                            _parseToDouble(cliente['importe']),
+                                          ),
                                           style: const TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.bold,
@@ -750,8 +729,9 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                         builder: (confirmContext) {
                           return AlertDialog(
                             title: const Text("Confirmar eliminación"),
-                            content:
-                                const Text("Esta acción no se puede deshacer."),
+                            content: const Text(
+                              "Esta acción no se puede deshacer.",
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () =>
@@ -761,10 +741,10 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                               ElevatedButton(
                                 onPressed: () =>
                                     Navigator.pop(confirmContext, true),
-                                child: const Text("Eliminar"),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.redAccent,
                                 ),
+                                child: const Text("Eliminar"),
                               ),
                             ],
                           );
@@ -773,9 +753,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
 
                       if (confirm == true) {
                         try {
-                          await manejoCortesAPI.eliminarCorte(
-                            corte['idCorte'],
-                          );
+                          await manejoCortesAPI.eliminarCorte(corte['idCorte']);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Corte eliminado exitosamente'),
@@ -841,10 +819,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            color.withOpacity(0.10),
-            color.withOpacity(0.04),
-          ],
+          colors: [color.withOpacity(0.10), color.withOpacity(0.04)],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withOpacity(0.25)),
@@ -949,7 +924,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 17,
                 color: Colors.grey.shade800,
                 fontWeight: FontWeight.w500,
               ),
@@ -959,7 +934,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
           Text(
             value,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 20,
               color: valueColor,
               fontWeight: bold ? FontWeight.bold : FontWeight.w600,
             ),
@@ -970,8 +945,8 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
               tooltip: 'Editar $label',
               onPressed: onEdit,
               icon: const Icon(
-                Icons.edit_rounded,
-                size: 20,
+                Icons.search_sharp,
+                size: 25,
                 color: Color(0xFF005498),
               ),
               splashRadius: 20,

@@ -85,4 +85,28 @@ class DocuementosApi {
       'banco': banco,
     });
   }
+
+  Future<double> obtenerTotalDatos({
+    required int idBanco,
+    required int idUsuario,
+    required String fecha,
+    required String turno,
+  }) async {
+    final rows = await obtenerDatos(
+      idBanco: idBanco,
+      idUsuario: idUsuario,
+      fecha: fecha,
+      turno: turno,
+      banco: '',
+    );
+
+    double total = 0.0;
+
+    for (final row in rows) {
+      final importe = (row['importe'] as num?)?.toDouble() ?? 0.0;
+      total += importe;
+    }
+
+    return total;
+  }
 }

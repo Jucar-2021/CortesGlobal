@@ -51,6 +51,7 @@ class _ListadoclientesState extends State<Listadoclientes> {
 
     final clientes = await fetchClientes();
     await _aplicarSaldosGuardados();
+    await _recargarTotalesClientes();
 
     return clientes;
   }
@@ -103,25 +104,51 @@ class _ListadoclientesState extends State<Listadoclientes> {
 
     await _prefs!.setString(_saldosKey, jsonEncode(saldos));
   }
+  // funcion para traer la suma del total de cada cliente y mostrarlo en el listado, se llama cada vez que se regresa de la captura de cliente
+  Future<void> _recargarTotalesClientes() async {
+    if (_clientes.isEmpty) return;
 
-  Future<void> clearDraft() async {
-    if (!_prefsReady || _prefs == null) return;
+    try {
+      final resultados = await Future.wait(
+        _clientes.map((cliente) async {
+          final idCliente = (cliente['IdCliente'] as num?)?.toInt() ?? 0;
 
-    await _prefs!.remove(_saldosKey);
+          final total = await clientesApi.obtenerTotalCliente(
+            idCliente: idCliente,
+            idUsuario: widget.idUsuario,
+            fecha: widget.fecha,
+            turno: widget.turno,
+          );
 
-    if (!mounted) return;
-    setState(() {
-      for (final cliente in _clientes) {
-        cliente['saldoTotal'] = 0.0;
-      }
-    });
+          return MapEntry(idCliente, total);
+        }),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        for (final entry in resultados) {
+          final i = _clientes.indexWhere(
+                (c) => (c['IdCliente'] as num?)?.toInt() == entry.key,
+          );
+
+          if (i != -1) {
+            _clientes[i]['saldoTotal'] = entry.value;
+          }
+        }
+      });
+
+      await _guardarSaldosLocales();
+    } catch (e) {
+      debugPrint('Error recargando totales de clientes: $e');
+    }
   }
 
   Future<void> _abrirCapturaCliente({
     required int idCliente,
     required String razonSocial,
   }) async {
-    final total = await Navigator.push<double>(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => ClientesCapturaPage(
@@ -134,19 +161,9 @@ class _ListadoclientesState extends State<Listadoclientes> {
       ),
     );
 
-    if (total != null && mounted) {
-      setState(() {
-        final i = _clientes.indexWhere(
-          (c) => (c['IdCliente'] as num?)?.toInt() == idCliente,
-        );
+    if (!mounted) return;
 
-        if (i != -1) {
-          _clientes[i]['saldoTotal'] = total;
-        }
-      });
-
-      await _guardarSaldosLocales();
-    }
+    await _recargarTotalesClientes();
   }
 
   double _calcularTotalGeneral() {
