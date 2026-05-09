@@ -10,33 +10,36 @@ class Captura extends StatelessWidget {
   final String nombre;
   final String apellidoPaterno;
   final String apellidoMaterno;
-  const Captura(
-      {super.key,
-      required this.usuario,
-      required this.idUsuario,
-      required this.nombre,
-      required this.apellidoPaterno,
-      required this.apellidoMaterno});
+  const Captura({
+    super.key,
+    required this.usuario,
+    required this.idUsuario,
+    required this.nombre,
+    required this.apellidoPaterno,
+    required this.apellidoMaterno,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Ingreso(
-        usuario: usuario,
-        idUsuario: idUsuario,
-        nombre: nombre,
-        apellidoPaterno: apellidoPaterno,
-        apellidoMaterno: apellidoMaterno);
+      usuario: usuario,
+      idUsuario: idUsuario,
+      nombre: nombre,
+      apellidoPaterno: apellidoPaterno,
+      apellidoMaterno: apellidoMaterno,
+    );
   }
 }
 
 class Ingreso extends StatefulWidget {
-  const Ingreso(
-      {super.key,
-      required this.usuario,
-      required this.idUsuario,
-      required this.nombre,
-      required this.apellidoPaterno,
-      required this.apellidoMaterno});
+  const Ingreso({
+    super.key,
+    required this.usuario,
+    required this.idUsuario,
+    required this.nombre,
+    required this.apellidoPaterno,
+    required this.apellidoMaterno,
+  });
   final String usuario;
   final int idUsuario;
   final String nombre;
@@ -101,8 +104,10 @@ class _IngresoState extends State<Ingreso> {
         _fechaSelec.text = DateFormat('yyyy/MM/dd').format(fecha);
 
         // valor visual
-        _fechaVisual.text =
-            DateFormat("d 'de' MMMM 'del' yyyy", 'es_MX').format(fecha);
+        _fechaVisual.text = DateFormat(
+          "d 'de' MMMM 'del' yyyy",
+          'es_MX',
+        ).format(fecha);
       });
     }
   }
@@ -118,14 +123,19 @@ class _IngresoState extends State<Ingreso> {
     if (turnoSeleccionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Selecciona el turno en qel que abriste turno')),
+          content: Text('Selecciona el turno en qel que abriste turno'),
+        ),
       );
       return;
     }
     final fecha = _fechaSelec.text;
     if (!_validarFechaSeleccionada()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No puedes seleccionar una fecha tan lejana al día actual')),
+        const SnackBar(
+          content: Text(
+            'No puedes seleccionar una fecha tan lejana al día actual',
+          ),
+        ),
       );
       return;
     }
@@ -134,33 +144,40 @@ class _IngresoState extends State<Ingreso> {
 
     if (idCorte != null) {
       showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-                icon: const Icon(Icons.warning, color: Colors.orange, size: 48),
-                title: const Text('Corte ya registrado',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
-                content: Text(
-                  'Ya tienes un corte registrado\n$nombre \npara la fecha $fecha',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancelar',
-                        style: TextStyle(color: Colors.red)),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      await validacionCorteApi.eliminarCorte(idCorte);
-                      Navigator.pop(context); // Cierra el diálogo
-                      _continuar(); // Intenta continuar de nuevo
-                    },
-                    child: const Text('Aceptar y continuar',
-                        style: TextStyle(color: Colors.green)),
-                  ),
-                ],
-              ));
+        context: context,
+        builder: (context) => AlertDialog(
+          icon: const Icon(Icons.warning, color: Colors.orange, size: 48),
+          title: const Text(
+            'Corte ya registrado',
+            style: TextStyle(fontWeight: FontWeight.w700),
+          ),
+          content: Text(
+            'Ya tienes un corte registrado\n$nombre \npara la fecha $fecha',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                await validacionCorteApi.eliminarCorte(idCorte);
+                Navigator.pop(context); // Cierra el diálogo
+                _continuar(); // Intenta continuar de nuevo
+              },
+              child: const Text(
+                'Aceptar y continuar',
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
+          ],
+        ),
+      );
     } else {
       Navigator.push(
         context,
@@ -179,8 +196,7 @@ class _IngresoState extends State<Ingreso> {
     }
   }
 
-  Future<int?> _validarCorte(
-      String fecha, int idUsuario, String turno) async {
+  Future<int?> _validarCorte(String fecha, int idUsuario, String turno) async {
     try {
       final idCorte = await validacionCorteApi.validarCorteRegistrado(
         idUsuario: idUsuario,
@@ -235,7 +251,11 @@ class _IngresoState extends State<Ingreso> {
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/login');
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
             },
           ),
         ],
@@ -246,11 +266,7 @@ class _IngresoState extends State<Ingreso> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              cs.primary.withOpacity(0.12),
-              cs.surface,
-              cs.surface,
-            ],
+            colors: [cs.primary.withOpacity(0.12), cs.surface, cs.surface],
           ),
         ),
         child: SafeArea(
@@ -258,7 +274,6 @@ class _IngresoState extends State<Ingreso> {
             alignment: Alignment.topCenter,
 
             child: ConstrainedBox(
-
               constraints: const BoxConstraints(maxWidth: 520),
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
@@ -351,8 +366,9 @@ class _IngresoState extends State<Ingreso> {
                                     // ignore: deprecated_member_use
                                     groupValue: turnoSeleccionado,
                                     // ignore: deprecated_member_use
-                                    onChanged: (value) =>
-                                        setState(() => turnoSeleccionado = value),
+                                    onChanged: (value) => setState(
+                                      () => turnoSeleccionado = value,
+                                    ),
                                   ),
                                   Divider(height: 1, color: cs.outlineVariant),
                                   RadioListTile<String>(
@@ -360,8 +376,9 @@ class _IngresoState extends State<Ingreso> {
                                     value: "Tarde",
                                     groupValue: turnoSeleccionado,
                                     // ignore: deprecated_member_use
-                                    onChanged: (value) =>
-                                        setState(() => turnoSeleccionado = value),
+                                    onChanged: (value) => setState(
+                                      () => turnoSeleccionado = value,
+                                    ),
                                   ),
                                   Divider(height: 1, color: cs.outlineVariant),
                                   RadioListTile<String>(
@@ -369,8 +386,9 @@ class _IngresoState extends State<Ingreso> {
                                     value: "Noche",
                                     groupValue: turnoSeleccionado,
                                     // ignore: deprecated_member_use
-                                    onChanged: (value) =>
-                                        setState(() => turnoSeleccionado = value),
+                                    onChanged: (value) => setState(
+                                      () => turnoSeleccionado = value,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -392,8 +410,6 @@ class _IngresoState extends State<Ingreso> {
                         ),
                       ),
                     ),
-
-
 
                     // Footer discreto
                     Text(

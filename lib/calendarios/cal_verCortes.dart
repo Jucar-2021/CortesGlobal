@@ -1,4 +1,5 @@
-import '/administrador/cortes/listadoCortes.dart';
+
+import 'package:cortes_despachador/administrador/cortes/listadoCortes.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -110,7 +111,7 @@ class _CortesState extends State<Cortes> {
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/login');
+              Navigator.pushNamedAndRemoveUntil(context, '/login' ,(route) => false,);
             },
           ),
         ],

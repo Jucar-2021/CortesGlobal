@@ -392,7 +392,11 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: _titulo(banco), centerTitle: true),
+      appBar: AppBar(
+        title: _titulo(banco),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+      ),
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : Stack(

@@ -1,4 +1,4 @@
-import '/administrador/adminUser/registroUser.dart';
+import 'adminUser/registroUser.dart';
 import 'package:flutter/material.dart';
 import '../calendarios/cal_ingresoReportesTar.dart';
 import '../calendarios/cal_reportesTarjetas.dart';
@@ -24,6 +24,16 @@ class HomeAdmin extends StatelessWidget {
             letterSpacing: 0.3,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
+            },
+          ),
+        ],
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [

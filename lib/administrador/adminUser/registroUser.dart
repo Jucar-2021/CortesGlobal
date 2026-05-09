@@ -1,5 +1,5 @@
+import '../../api/consumoPHP.dart';
 import 'package:flutter/material.dart';
-import '/api/consumoPHP.dart';
 import '../../api/user/user_api.dart';
 
 class Registro extends StatelessWidget {
@@ -33,7 +33,7 @@ class _NuevoUsuarioState extends State<NuevoUsuario> {
   bool _registrando = false;
 
   final ApiService apiService = ApiService();
-  late final UserApi userApi = UserApi(apiService);
+  late final UserApi userApi ;
 
   @override
   void initState() {
@@ -44,6 +44,7 @@ class _NuevoUsuarioState extends State<NuevoUsuario> {
     apellidoMaterno.text = "";
     pass.text = "";
     pass2.text = "";
+userApi = UserApi(apiService);
   }
 
   @override
@@ -107,11 +108,25 @@ class _NuevoUsuarioState extends State<NuevoUsuario> {
         backgroundColor: cs.primary,
         foregroundColor: Colors.white,
         elevation: 2,
-        centerTitle: false,
+        centerTitle: true,
         title: const Text(
           "Registro de Usuario",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                    (route) => false,
+              );
+            },
+          ),
+        ],
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         decoration: BoxDecoration(

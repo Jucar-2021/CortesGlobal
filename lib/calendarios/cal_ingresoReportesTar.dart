@@ -110,7 +110,7 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
             onPressed: () {
-              Navigator.pushReplacementNamed(context, '/login');
+              Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
             },
           ),
         ],
