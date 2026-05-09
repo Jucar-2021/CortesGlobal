@@ -214,7 +214,7 @@ class _ListaBancosState extends State<ListaBancos> {
           if ((!snapshot.hasData || snapshot.data!.isEmpty) &&
               _bancos.isEmpty) {
             return const Center(
-              child: Text('No se encontraron clientes'),
+              child: Text('No se encontraron bancos'),
             );
           }
 
