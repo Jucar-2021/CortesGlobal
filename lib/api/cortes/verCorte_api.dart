@@ -13,7 +13,7 @@ class VerCorteAPI {
 
     final data = response['data'];
     if (data is List) {
-      print(data);
+      print('Respuesta de cortesDia.php: $data');
       return data;
     }
     return [];

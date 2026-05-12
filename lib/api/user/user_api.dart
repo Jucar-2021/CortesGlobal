@@ -1,4 +1,5 @@
 import '../consumoPHP.dart';
+import '../../administrador/authServise/authServise.dart';
 
 class UserApi {
   final ApiService api;
@@ -25,6 +26,7 @@ class UserApi {
       });
 
       if (res['ok'] == true) {
+        await AuthService.guardarToken(res['token']);
         return res;
       }
 
@@ -41,6 +43,7 @@ class UserApi {
       });
 
       if (res['ok'] == true) {
+        await AuthService.guardarToken(res['token']);
         return res;
       }
 

@@ -58,11 +58,6 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
     banco = widget.banco;
     _cargarDatosIniciales();
 
-    print('ID Usuario: ${widget.idUsuario}');
-    print('Fecha: ${widget.fecha}');
-    print('Turno: ${widget.turno}');
-    print('Banco: ${widget.banco}');
-    print('IDBanco: ${widget.idBanco}');
   }
 
   @override

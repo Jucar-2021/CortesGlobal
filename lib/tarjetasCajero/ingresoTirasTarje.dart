@@ -1,4 +1,4 @@
-import '/api/documentos/registroRepo_api.dart';
+import '../api/documentos/registroRepo_api.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../api/consumoPHP.dart';

@@ -20,7 +20,7 @@ class DocuementosApi {
     required String fecha,
     required String turno,
     required String banco,
-    int? idBanco,
+    int? idBanco
   }) async {
     final res = await api.postJson('TarjetasCajero/obtener.php', {
       'idUsuario': idUsuario,
