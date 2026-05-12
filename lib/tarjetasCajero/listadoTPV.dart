@@ -6,7 +6,6 @@ import '../api/documentos/registroDoc_api.dart';
 import '../api/consumoPHP.dart';
 import 'baucherCajero.dart';
 
-
 class ListaBancos extends StatefulWidget {
   const ListaBancos({
     super.key,
@@ -27,7 +26,7 @@ class ListaBancos extends StatefulWidget {
 
 class _ListaBancosState extends State<ListaBancos> {
   final ApiService apiService = ApiService();
-  late final DocuementosApi  docuementosApi;
+  late final DocuementosApi docuementosApi;
   late Future<List<Map<String, dynamic>>> _futureBancos;
 
   List<Map<String, dynamic>> _bancos = [];
@@ -81,8 +80,8 @@ class _ListaBancosState extends State<ListaBancos> {
       final id = (banco['IdBanco'] as num?)?.toInt() ?? 0;
 
       if (saldosGuardados.containsKey(id.toString())) {
-        banco['saldoTotal'] =
-            (saldosGuardados[id.toString()] as num).toDouble();
+        banco['saldoTotal'] = (saldosGuardados[id.toString()] as num)
+            .toDouble();
       }
     }
   }
@@ -130,7 +129,7 @@ class _ListaBancosState extends State<ListaBancos> {
       setState(() {
         for (final entry in resultados) {
           final i = _bancos.indexWhere(
-                (c) => (c['IdBanco'] as num?)?.toInt() == entry.key,
+            (c) => (c['IdBanco'] as num?)?.toInt() == entry.key,
           );
 
           if (i != -1) {
@@ -182,8 +181,11 @@ class _ListaBancosState extends State<ListaBancos> {
     return total;
   }
 
-  final NumberFormat _currencyFormat =
-  NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   String _fmt(double valor) {
     return _currencyFormat.format(valor);
@@ -200,22 +202,16 @@ class _ListaBancosState extends State<ListaBancos> {
         future: _futureBancos,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
-            return Center(
-              child: Text('Error: ${snapshot.error}'),
-            );
+            return Center(child: Text('Error: ${snapshot.error}'));
           }
 
           if ((!snapshot.hasData || snapshot.data!.isEmpty) &&
               _bancos.isEmpty) {
-            return const Center(
-              child: Text('No se encontraron bancos'),
-            );
+            return const Center(child: Text('No se encontraron bancos'));
           }
 
           final bancos = _bancos.isNotEmpty ? _bancos : snapshot.data!;
@@ -238,9 +234,9 @@ class _ListaBancosState extends State<ListaBancos> {
                     final double saldo = (banco['saldoTotal'] is num)
                         ? (banco['saldoTotal'] as num).toDouble()
                         : double.tryParse(
-                      banco['saldoTotal']?.toString() ?? '0',
-                    ) ??
-                        0.0;
+                                banco['saldoTotal']?.toString() ?? '0',
+                              ) ??
+                              0.0;
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 10),
@@ -272,8 +268,7 @@ class _ListaBancosState extends State<ListaBancos> {
                                 onPressed: () async {
                                   await _abrirCapturaTPV(
                                     idBanco: idBanco,
-                                   banco: nombreBanco,
-
+                                    banco: nombreBanco,
                                   );
                                 },
                                 icon: const Icon(Icons.edit_document),

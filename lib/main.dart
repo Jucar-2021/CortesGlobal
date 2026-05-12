@@ -42,9 +42,7 @@ class MyApp extends StatelessWidget {
       ],
       home: const Cortes(),
       initialRoute: '/login',
-      routes: {
-        '/login': (_) => const Cortes(),
-      },
+      routes: {'/login': (_) => const Cortes()},
       onGenerateRoute: (settings) {
         if (settings.name == '/captura') {
           final args = settings.arguments as Map<String, dynamic>?;
@@ -68,9 +66,8 @@ class MyApp extends StatelessWidget {
         return null;
       },
       onUnknownRoute: (_) => MaterialPageRoute(
-        builder: (_) => const Scaffold(
-          body: Center(child: Text("Ruta no encontrada")),
-        ),
+        builder: (_) =>
+            const Scaffold(body: Center(child: Text("Ruta no encontrada"))),
       ),
     );
   }
@@ -92,7 +89,7 @@ class _CortesState extends State<Cortes> {
 
   bool _loginLoading = false; // solo visual, tu lógica sigue igual
 
-// ===================== API & USERAPI =====================
+  // ===================== API & USERAPI =====================
   final ApiService apiService = ApiService();
   late final UserApi userApi = UserApi(apiService);
 
@@ -104,11 +101,14 @@ class _CortesState extends State<Cortes> {
     claveAcceso.text = "";
 
     // Si quieres probar conexión, mejor un endpoint real (ping.php)
-    apiService.postJson('ping.php', {}).then((data) {
-      debugPrint('Ping: $data');
-    }).catchError((e) {
-      debugPrint('Error ping: $e');
-    });
+    apiService
+        .postJson('ping.php', {})
+        .then((data) {
+          debugPrint('Ping: $data');
+        })
+        .catchError((e) {
+          debugPrint('Error ping: $e');
+        });
   }
 
   @override
@@ -172,9 +172,9 @@ class _CortesState extends State<Cortes> {
         context,
         MaterialPageRoute(builder: (_) => const HomeAdmin()),
       );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Acceso concedido.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Acceso concedido.')));
     } else {
       claveAcceso.clear();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -194,11 +194,7 @@ class _CortesState extends State<Cortes> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              cs.primary.withOpacity(0.15),
-              cs.surface,
-              cs.surface,
-            ],
+            colors: [cs.primary.withOpacity(0.15), cs.surface, cs.surface],
           ),
         ),
         child: SafeArea(
@@ -219,8 +215,11 @@ class _CortesState extends State<Cortes> {
                             CircleAvatar(
                               radius: 26,
                               backgroundColor: cs.primary.withOpacity(0.15),
-                              child: Icon(Icons.local_gas_station,
-                                  color: cs.primary, size: 28),
+                              child: Icon(
+                                Icons.local_gas_station,
+                                color: cs.primary,
+                                size: 28,
+                              ),
                             ),
                             const SizedBox(width: 12),
                             const Expanded(
@@ -230,8 +229,9 @@ class _CortesState extends State<Cortes> {
                                   Text(
                                     "Cortes Despachador",
                                     style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w800),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                                   ),
                                   SizedBox(height: 2),
                                   Text(
@@ -302,19 +302,23 @@ class _CortesState extends State<Cortes> {
                                 SizedBox(
                                   height: 48,
                                   child: FilledButton.icon(
-                                    onPressed:
-                                        _loginLoading ? null : _iniciarSesion,
+                                    onPressed: _loginLoading
+                                        ? null
+                                        : _iniciarSesion,
                                     icon: _loginLoading
                                         ? const SizedBox(
                                             width: 18,
                                             height: 18,
                                             child: CircularProgressIndicator(
-                                                strokeWidth: 2),
+                                              strokeWidth: 2,
+                                            ),
                                           )
                                         : const Icon(Icons.login),
-                                    label: Text(_loginLoading
-                                        ? "Validando..."
-                                        : "Iniciar sesión"),
+                                    label: Text(
+                                      _loginLoading
+                                          ? "Validando..."
+                                          : "Iniciar sesión",
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(height: 10),
@@ -322,10 +326,12 @@ class _CortesState extends State<Cortes> {
                                   height: 46,
                                   child: OutlinedButton.icon(
                                     onPressed: _abrirAdmin,
-                                    icon:
-                                        const Icon(Icons.admin_panel_settings),
-                                    label:
-                                        const Text("Opciones de administrador"),
+                                    icon: const Icon(
+                                      Icons.admin_panel_settings,
+                                    ),
+                                    label: const Text(
+                                      "Opciones de administrador",
+                                    ),
                                   ),
                                 ),
                               ],
@@ -334,7 +340,6 @@ class _CortesState extends State<Cortes> {
                         ),
 
                         //const Spacer(flex: 30), //sirve porque IntrinsicHeight + minHeight
-
                         Padding(
                           padding: const EdgeInsets.only(top: 16, bottom: 8),
                           child: Text(
@@ -379,8 +384,9 @@ class _CortesState extends State<Cortes> {
             ),
             FilledButton(
               onPressed: () async {
-                final clave = await userApi
-                    .validarAdmin(int.tryParse(claveAcceso.text.trim()) ?? 0);
+                final clave = await userApi.validarAdmin(
+                  int.tryParse(claveAcceso.text.trim()) ?? 0,
+                );
                 // ignore: use_build_context_synchronously
                 Navigator.of(context).pop(clave != null);
               },

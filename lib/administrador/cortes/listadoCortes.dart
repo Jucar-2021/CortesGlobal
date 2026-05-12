@@ -78,7 +78,6 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
               fecha: corte['fecha'].toString(),
               user: corte['usuario'].toString(),
               turno: corte['turno'].toString(),
-
             ),
           ),
         );
@@ -586,9 +585,8 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                                 dialogContext,
                                 corte: corte,
                                 concepto: "Cobros_tpv",
-                            ),),
-
-
+                              ),
+                            ),
 
                             _buildDetailRow(
                               "Clientes",
