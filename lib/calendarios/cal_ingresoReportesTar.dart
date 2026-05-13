@@ -1,6 +1,7 @@
-import '../tarjetasCajero/ingresoTirasTarje.dart';
+import '../administrador/reportes/ingresoTirasTarje.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../administrador/authServise/authServise.dart';
 
 class ViewReportes extends StatelessWidget {
   const ViewReportes({super.key});
@@ -100,7 +101,7 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              "Ingresa la fecha para ingresar los reportes",
+              "Fecha de para ingresar importes de tiras de TPV",
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
@@ -109,7 +110,8 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () {
+            onPressed: () async{
+              await AuthService.cerrarSesion();
               Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
             },
           ),

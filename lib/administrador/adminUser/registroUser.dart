@@ -1,6 +1,7 @@
 import '../../api/consumoPHP.dart';
 import 'package:flutter/material.dart';
 import '../../api/user/user_api.dart';
+import '../../administrador/authServise/authServise.dart';
 
 class Registro extends StatelessWidget {
   const Registro({super.key});
@@ -117,7 +118,8 @@ userApi = UserApi(apiService);
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () {
+            onPressed: () async {
+              await AuthService.cerrarSesion();
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/login',

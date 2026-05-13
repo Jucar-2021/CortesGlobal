@@ -188,7 +188,7 @@ class _CortesState extends State<Cortes> {
     final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true, // ✅ permite ajustar con teclado
+      resizeToAvoidBottomInset: true, // permite ajustar con teclado
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -372,6 +372,7 @@ class _CortesState extends State<Cortes> {
           content: TextField(
             keyboardType: TextInputType.number,
             controller: claveAcceso,
+            textInputAction: TextInputAction.done,
             obscureText: true,
             decoration: const InputDecoration(
               labelText: 'Ingrese la clave de acceso',

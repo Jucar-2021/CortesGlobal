@@ -1,5 +1,6 @@
-import 'package:cortes_despachador/tarjetasCajero/listadoTPV.dart';
+import 'dart:convert';
 
+import 'package:cortes_despachador/tarjetasCajero/listadoTPV.dart';
 import 'tarjetasCajero/baucherCajero.dart';
 import 'package:flutter/material.dart';
 import 'clientes/listadoClientes.dart';
@@ -59,6 +60,8 @@ class _DatoCorteState extends State<DatoCorte> {
 
   SharedPreferences? _prefs;
   bool _prefsReady = false;
+
+
 
   // ======== FORMATO DINERO ========
   final NumberFormat _currencyFormat = NumberFormat.currency(

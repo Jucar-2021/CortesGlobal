@@ -1,6 +1,7 @@
-import '../administrador/reportesTarjetas.dart';
+import '../administrador/reportes/reportesTarjetas.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../administrador/authServise/authServise.dart';
 
 class ViewReportesTarjetas extends StatelessWidget {
   const ViewReportesTarjetas({super.key});
@@ -59,8 +60,10 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
         _fechaIni.text = DateFormat('yyyy/MM/dd').format(fecha);
 
         // valor visual
-        _fechaVisualini.text =
-            DateFormat("d 'de' MMMM 'del' yyyy", 'es_MX').format(fecha);
+        _fechaVisualini.text = DateFormat(
+          "d 'de' MMMM 'del' yyyy",
+          'es_MX',
+        ).format(fecha);
       });
     }
   }
@@ -84,14 +87,16 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
         _fechaFin.text = DateFormat('yyyy/MM/dd').format(fecha);
 
         // valor visual
-        _fechaVisualFin.text =
-            DateFormat("d 'de' MMMM 'del' yyyy", 'es_MX').format(fecha);
+        _fechaVisualFin.text = DateFormat(
+          "d 'de' MMMM 'del' yyyy",
+          'es_MX',
+        ).format(fecha);
       });
     }
   }
 
   void _continuar() {
-    if (_fechaSeleccionadaini == null && _fechaSeleccionadaFin == null) {
+    if (_fechaSeleccionadaini == null || _fechaSeleccionadaFin == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('ingresa el periodo a consultar')),
       );
@@ -101,8 +106,10 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
       if (_fechaSeleccionadaFin!.isBefore(_fechaSeleccionadaini!)) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  'La fecha de inicio no puede ser posterior a la fecha de fin')),
+            content: Text(
+              'La fecha de inicio no puede ser posterior a la fecha de fin',
+            ),
+          ),
         );
         return;
       }
@@ -114,10 +121,8 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ReporteTarjetas(
-          fechaini: fechaini,
-          fechafin: fechafin,
-        ),
+        builder: (context) =>
+            ReporteTarjetas(fechaini: fechaini, fechafin: fechafin),
       ),
     );
   }
@@ -151,8 +156,13 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
+            onPressed: () async {
+              await AuthService.cerrarSesion();
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
             },
           ),
         ],
@@ -163,11 +173,7 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              cs.primary.withOpacity(0.12),
-              cs.surface,
-              cs.surface,
-            ],
+            colors: [cs.primary.withOpacity(0.12), cs.surface, cs.surface],
           ),
         ),
         child: SafeArea(

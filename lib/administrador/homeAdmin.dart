@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../calendarios/cal_ingresoReportesTar.dart';
 import '../calendarios/cal_reportesTarjetas.dart';
 import '../calendarios/cal_verCortes.dart';
+import '../administrador/authServise/authServise.dart';
 
 class HomeAdmin extends StatelessWidget {
   const HomeAdmin({super.key});
@@ -28,7 +29,8 @@ class HomeAdmin extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () {
+            onPressed: () async {
+              await AuthService.cerrarSesion();
               Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
             },
           ),

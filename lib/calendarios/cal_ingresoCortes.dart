@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../api/consumoPHP.dart';
 import '../datosCorte.dart';
 import '../api/cortes/manejoCortes_api.dart';
+import '../administrador/authServise/authServise.dart';
 
 class Captura extends StatelessWidget {
   final String usuario;
@@ -152,23 +153,15 @@ class _IngresoState extends State<Ingreso> {
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
           content: Text(
-            'Ya tienes un corte registrado\n$nombre \npara la fecha $fecha',
+            'Ya tienes un corte registrado\n$nombre \npara la fecha ${_fechaVisual.text} en el turno $turnoSeleccionado.\n\nSi quieres modificar contacta al administrador.',
             style: const TextStyle(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-            TextButton(
               onPressed: () async {
-                await validacionCorteApi.eliminarCorte(idCorte);
+
                 Navigator.pop(context); // Cierra el diálogo
-                _continuar(); // Intenta continuar de nuevo
               },
               child: const Text(
                 'Aceptar y continuar',
@@ -250,11 +243,13 @@ class _IngresoState extends State<Ingreso> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () {
+            onPressed: () async {
+              await AuthService.cerrarSesion();
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/login',
                 (route) => false,
+
               );
             },
           ),
@@ -285,7 +280,7 @@ class _IngresoState extends State<Ingreso> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        "Selecciona la fecha del corte",
+                        "Selecciona la fecha para cartura de corte",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -388,6 +383,16 @@ class _IngresoState extends State<Ingreso> {
                                     // ignore: deprecated_member_use
                                     onChanged: (value) => setState(
                                       () => turnoSeleccionado = value,
+                                    ),
+                                  ),
+                                  Divider(height: 1, color: cs.outlineVariant),
+                                  RadioListTile<String>(
+                                    title: const Text("Mixto"),
+                                    value: "Mixto",
+                                    groupValue: turnoSeleccionado,
+                                    // ignore: deprecated_member_use
+                                    onChanged: (value) => setState(
+                                          () => turnoSeleccionado = value,
                                     ),
                                   ),
                                 ],
