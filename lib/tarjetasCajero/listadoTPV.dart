@@ -227,7 +227,7 @@ class _ListaBancosState extends State<ListaBancos> {
                     final banco = bancos[index];
 
                     final int idBanco =
-                        (banco['IdBanco'] as num?)?.toInt() ?? 0;
+                        (banco['idBanco'] as num?)?.toInt() ?? 0;
                     final String nombreBanco =
                         banco['nombreBanco']?.toString() ?? 'Sin nombre';
 

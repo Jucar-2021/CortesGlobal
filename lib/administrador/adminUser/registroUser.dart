@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 import '../../api/consumoPHP.dart';
 import 'package:flutter/material.dart';
 import '../../api/user/user_api.dart';
@@ -35,6 +37,15 @@ class _NuevoUsuarioState extends State<NuevoUsuario> {
 
   final ApiService apiService = ApiService();
   late final UserApi userApi ;
+
+  final upperCaseFormatter = TextInputFormatter.withFunction(
+        (oldValue, newValue) {
+      return newValue.copyWith(
+        text: newValue.text.toUpperCase(),
+        selection: newValue.selection,
+      );
+    },
+  );
 
   @override
   void initState() {
@@ -195,12 +206,13 @@ userApi = UserApi(apiService);
 
                           // NOMBRE
                           TextFormField(
-                            keyboardType: TextInputType.text,
-                            onChanged: (value) =>
-                                nombre.text = value.toUpperCase(),
                             controller: nombre,
                             maxLength: 50,
+                            keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
+                            inputFormatters: [
+                              upperCaseFormatter,
+                            ],
                             decoration: InputDecoration(
                               counterText: "",
                               labelText: "Nombre",
@@ -223,16 +235,17 @@ userApi = UserApi(apiService);
 
                           // APELLIDO PATERNO
                           TextFormField(
-                            keyboardType: TextInputType.text,
-                            onChanged: (value) =>
-                                apellidoPaterno.text = value.toUpperCase(),
                             controller: apellidoPaterno,
                             maxLength: 50,
+                            keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
+                            inputFormatters: [
+                              upperCaseFormatter,
+                            ],
                             decoration: InputDecoration(
                               counterText: "",
                               labelText: "Apellido Paterno",
-                              hintText: "Ej: Pérez",
+                              hintText: "Ej: Alvarez",
                               prefixIcon: const Icon(Icons.person),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -251,16 +264,17 @@ userApi = UserApi(apiService);
 
                           // APELLIDO MATERNO
                           TextFormField(
-                            keyboardType: TextInputType.text,
-                            onChanged: (value) =>
-                                apellidoMaterno.text = value.toUpperCase(),
                             controller: apellidoMaterno,
                             maxLength: 50,
+                            keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
+                            inputFormatters: [
+                              upperCaseFormatter,
+                            ],
                             decoration: InputDecoration(
                               counterText: "",
                               labelText: "Apellido Materno",
-                              hintText: "Ej: López",
+                              hintText: "Ej: García",
                               prefixIcon: const Icon(Icons.person),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -285,7 +299,7 @@ userApi = UserApi(apiService);
                             decoration: InputDecoration(
                               counterText: "",
                               labelText: "Usuario",
-                              hintText: "Ej: juan",
+                              hintText: "Ej: juanito70",
                               prefixIcon: const Icon(Icons.person),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
@@ -296,8 +310,8 @@ userApi = UserApi(apiService);
                               if (value.isEmpty) {
                                 return 'Ingresa un usuario';
                               }
-                              if (value.length < 3) {
-                                return 'Mínimo 3 caracteres';
+                              if (value.length < 5) {
+                                return 'Mínimo 5 caracteres';
                               }
                               // opcional: solo letras/números
                               final ok =
