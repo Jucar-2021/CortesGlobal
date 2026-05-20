@@ -40,9 +40,9 @@ class BancosApi {
   // estado de banco
   Future<void> cambiarEstadoBanco({
     required int idBanco,
-    required String estado,
+    required int estado,
   }) async {
-    await api.postJson('Bancos/cambiar_estado.php', {
+    await api.postJson('Bancos/estado.php', {
       'idBanco': idBanco,
       'estado': estado,
     });

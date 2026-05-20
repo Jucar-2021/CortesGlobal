@@ -152,15 +152,26 @@ class _IngresoState extends State<Ingreso> {
             'Corte ya registrado',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
-          content: Text(
-            'Ya tienes un corte registrado\n$nombre \npara la fecha ${_fechaVisual.text} en el turno $turnoSeleccionado.\n\nSi quieres modificar contacta al administrador.',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$nombre ya tienes un corte registrado para la fecha ${_formatoFecha(fecha)} y turno $turnoSeleccionado.',
+                style: const TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Para modificar o corregir, contacta al administrador.',
+                style: const TextStyle(fontSize: 16, color: Colors.red, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
           actions: [
             TextButton(
               onPressed: () async {
-
                 Navigator.pop(context); // Cierra el diálogo
               },
               child: const Text(
@@ -249,7 +260,6 @@ class _IngresoState extends State<Ingreso> {
                 context,
                 '/login',
                 (route) => false,
-
               );
             },
           ),
@@ -392,7 +402,7 @@ class _IngresoState extends State<Ingreso> {
                                     groupValue: turnoSeleccionado,
                                     // ignore: deprecated_member_use
                                     onChanged: (value) => setState(
-                                          () => turnoSeleccionado = value,
+                                      () => turnoSeleccionado = value,
                                     ),
                                   ),
                                 ],
@@ -435,5 +445,20 @@ class _IngresoState extends State<Ingreso> {
         ),
       ),
     );
+  }
+  //formato de fecha DD/MM/YYYY
+  String _formatoFecha(String fecha) {
+    try {
+      final partes = fecha.split('/');
+      if (partes.length != 3) return fecha;
+
+      final an = partes[0];
+      final mes = partes[1];
+      final dia = partes[2];
+
+      return '$dia/$mes/$an';
+    } catch (e) {
+      return fecha;
+    }
   }
 }

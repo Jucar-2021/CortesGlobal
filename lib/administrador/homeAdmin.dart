@@ -1,10 +1,11 @@
-import 'adminUser/registroUser.dart';
+
 import 'package:flutter/material.dart';
 import '../calendarios/cal_ingresoReportesTar.dart';
 import '../calendarios/cal_reportesTarjetas.dart';
 import '../calendarios/cal_verCortes.dart';
 import 'bancos/bancos_manejo.dart';
 import '../administrador/authServise/authServise.dart';
+import '../administrador/adminUser/listadoUser.dart';
 
 class HomeAdmin extends StatelessWidget {
   const HomeAdmin({super.key});
@@ -93,7 +94,7 @@ class HomeAdmin extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const Registro(),
+                          builder: (context) => const UsuariosManejo(),
                         ),
                       );
                     },

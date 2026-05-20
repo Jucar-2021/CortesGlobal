@@ -60,8 +60,18 @@ class _ListaBancosState extends State<ListaBancos> {
     try {
       final bancos = await docuementosApi.getBancos();
 
-      _bancos = List<Map<String, dynamic>>.from(bancos);
+      // SOLO BANCOS ACTIVOS
+      final bancosActivos = bancos.where((banco) {
+        final estado =
+            int.tryParse(banco['estado'].toString()) ?? 0;
+
+        return estado == 1;
+      }).toList();
+
+      _bancos = List<Map<String, dynamic>>.from(bancosActivos);
+
       return _bancos;
+
     } catch (e) {
       debugPrint('Error al obtener bancos: $e');
       return [];
@@ -77,7 +87,7 @@ class _ListaBancosState extends State<ListaBancos> {
     final Map<String, dynamic> saldosGuardados = jsonDecode(jsonString);
 
     for (final banco in _bancos) {
-      final id = (banco['IdBanco'] as num?)?.toInt() ?? 0;
+      final id = (banco['idBanco'] as num?)?.toInt() ?? 0;
 
       if (saldosGuardados.containsKey(id.toString())) {
         banco['saldoTotal'] = (saldosGuardados[id.toString()] as num)
@@ -92,7 +102,7 @@ class _ListaBancosState extends State<ListaBancos> {
     final Map<String, double> saldos = {};
 
     for (final banco in _bancos) {
-      final id = (banco['IdBanco'] as num?)?.toInt() ?? 0;
+      final id = (banco['idBanco'] as num?)?.toInt() ?? 0;
       final saldo = banco['saldoTotal'];
 
       final valor = saldo is num
@@ -111,7 +121,7 @@ class _ListaBancosState extends State<ListaBancos> {
     try {
       final resultados = await Future.wait(
         _bancos.map((banco) async {
-          final idBanco = (banco['IdBanco'] as num?)?.toInt() ?? 0;
+          final idBanco = (banco['idBanco'] as num?)?.toInt() ?? 0;
 
           final total = await docuementosApi.obtenerTotalDatos(
             idBanco: idBanco,
@@ -129,7 +139,7 @@ class _ListaBancosState extends State<ListaBancos> {
       setState(() {
         for (final entry in resultados) {
           final i = _bancos.indexWhere(
-            (c) => (c['IdBanco'] as num?)?.toInt() == entry.key,
+            (c) => (c['idBanco'] as num?)?.toInt() == entry.key,
           );
 
           if (i != -1) {

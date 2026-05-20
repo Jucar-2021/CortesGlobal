@@ -218,7 +218,7 @@ class _ClientesCapturaPageState extends State<ClientesCapturaPage> {
 
     final importes = _obtenerImportesValidos();
 
-    // ✅ NUEVO: si no hay importes, regresar sin pedir nada
+    // NUEVO: si no hay importes, regresar sin pedir nada
     if (importes.isEmpty) {
       Navigator.pop<double>(context, _total);
       return;
