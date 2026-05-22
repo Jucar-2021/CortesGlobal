@@ -6,7 +6,7 @@ class ApiService {
 
   final String baseUrl =
   /*'http://dev-soluciones.com/api'*/
-      'http://192.168.100.17/api2';
+      'https://api2-production-2b15.up.railway.app';
 
   Uri _uri(String endpoint) =>
       Uri.parse('$baseUrl/$endpoint');

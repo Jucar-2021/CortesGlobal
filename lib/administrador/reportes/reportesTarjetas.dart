@@ -908,6 +908,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
                   ),
                   borderRadius: BorderRadius.circular(18),
                 ),
+
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -926,6 +927,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
                         vertical: 16,
                         horizontal: 18,
                       ),
+
                       child: Row(
                         mainAxisAlignment:
                         MainAxisAlignment.center,
@@ -936,20 +938,24 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
                           ),
                           SizedBox(width: 10),
                           Text(
-                            'Ver detalle tabular',
+                            'Detalle tabular',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+
                         ],
+
                       ),
+
                     ),
                   ),
                 ),
               ),
             ],
+
           ),
         ),
       ),

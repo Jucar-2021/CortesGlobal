@@ -60,7 +60,15 @@ class _ListadoclientesState extends State<Listadoclientes> {
     try {
       final clientes = await clientesApi.getClientes();
 
-      _clientes = List<Map<String, dynamic>>.from(clientes);
+      // SOLO CLIENTES ACTIVOS
+      final clientesActivos = clientes.where((banco) {
+        final estado =
+            int.tryParse(banco['estado'].toString()) ?? 0;
+
+        return estado == 1;
+      }).toList();
+
+      _clientes = List<Map<String, dynamic>>.from(clientesActivos);
       return _clientes;
     } catch (e) {
       debugPrint('Error al obtener clientes: $e');

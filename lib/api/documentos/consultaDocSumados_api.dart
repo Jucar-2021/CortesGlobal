@@ -43,4 +43,24 @@ class ConsultaBancosApi {
           }
         });
   }
+
+  Future<List<Map<String, dynamic>>> obtenerBuzon({
+    required String fechaIni,
+    required String fechaFin,
+  }) {
+    return api
+        .postJson('Consultas/Documentos/obtenerBuzon.php', {
+          'fechaInicio': fechaIni,
+          'fechaFin': fechaFin,
+        })
+        .then((res) {
+          final data = res['data'];
+
+          if (data is List) {
+            return data.map((e) => Map<String, dynamic>.from(e)).toList();
+          } else {
+            throw Exception('Respuesta inesperada: "data" no es una lista');
+          }
+        });
+  }
 }

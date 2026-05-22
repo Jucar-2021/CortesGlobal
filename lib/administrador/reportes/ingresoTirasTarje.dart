@@ -116,10 +116,10 @@ class _IngresoReportesState extends State<IngresoReportes> {
   Color _colorBanco(String banco) {
     switch (banco.toLowerCase()) {
       case 'santander':
-        return Colors.red;
+        return Colors.redAccent;
       case 'mifel':
         return Colors.blue;
-      case 'monedero':
+      case 'efecticard':
         return Colors.green;
       default:
         return Colors.indigo;

@@ -330,7 +330,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
             color: Color.fromARGB(255, 251, 113, 0),
           ),
         );
-      case 'Santander':
+      case 'SANTANDER':
         return Text(
           '♨️ Santander',
           style: TextStyle(
@@ -339,7 +339,7 @@ class _RegistroDocumentosPageState extends State<RegistroDocumentosPage> {
             color: Color.fromARGB(255, 226, 28, 14),
           ),
         );
-      case 'Mifel':
+      case 'MIFEL':
         return Text(
           'Mifel',
           style: TextStyle(

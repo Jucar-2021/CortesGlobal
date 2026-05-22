@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../calendarios/cal_ingresoReportesTar.dart';
 import '../calendarios/cal_reportesTarjetas.dart';
@@ -6,6 +5,7 @@ import '../calendarios/cal_verCortes.dart';
 import 'bancos/bancos_manejo.dart';
 import '../administrador/authServise/authServise.dart';
 import '../administrador/adminUser/listadoUser.dart';
+import 'clientes/manejoClientes.dart';
 
 class HomeAdmin extends StatelessWidget {
   const HomeAdmin({super.key});
@@ -88,7 +88,7 @@ class HomeAdmin extends StatelessWidget {
                   _adminButton(
                     context,
                     icon: Icons.person_add_alt_1_rounded,
-                    label: "Registrar\nUsuario",
+                    label: "Usuario",
                     color: const Color(0xFF1E88E5),
                     onTap: () {
                       Navigator.push(
@@ -116,7 +116,7 @@ class HomeAdmin extends StatelessWidget {
                   _adminButton(
                     context,
                     icon: Icons.credit_card_rounded,
-                    label: "Cobros con\nTarjetas",
+                    label: "Balance de\nTarjetas",
                     color: const Color(0xFFE53935),
                     onTap: () {
                       Navigator.push(
@@ -151,6 +151,20 @@ class HomeAdmin extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const BancosManejo(),
+                        ),
+                      );
+                    },
+                  ),
+                  _adminButton(
+                    context,
+                    icon: Icons.group_add,
+                    label: "Clientes",
+                    color: const Color(0xFF6a8e8f),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Manejoclientes(),
                         ),
                       );
                     },

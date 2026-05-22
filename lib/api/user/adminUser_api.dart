@@ -14,4 +14,12 @@ class UserAdminApi {
       throw Exception('Respuesta inesperada: "data" no es una lista');
     }
   }
+
+  Future <void> updatePassword(int idUsuario, String pass) async {
+
+    await api.postJson('User/updatePass.php', {
+      'idUsuario': idUsuario,
+      'pass': pass,
+    });
+  }
 }

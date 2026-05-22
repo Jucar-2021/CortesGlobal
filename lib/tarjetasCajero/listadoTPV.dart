@@ -262,14 +262,14 @@ class _ListaBancosState extends State<ListaBancos> {
                             Text(
                               nombreBanco,
                               style: const TextStyle(
-                                fontSize: 17,
+                                fontSize: 25,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 8),
                             Text(
                               'Saldo total: ${_fmt(saldo)}',
-                              style: const TextStyle(fontSize: 15),
+                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Color(0xFF4A90E2)),
                             ),
                             const SizedBox(height: 12),
                             Align(
