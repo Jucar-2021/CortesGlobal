@@ -1,7 +1,9 @@
+import '../../calendarios/cal_ingresoReportesTar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../api/consumoPHP.dart';
 import '../../api/documentos/consultaDocSumados_api.dart';
+import 'buzonCajero.dart';
 
 class ReporteTarjetas extends StatefulWidget {
   const ReporteTarjetas({
@@ -19,8 +21,9 @@ class ReporteTarjetas extends StatefulWidget {
 
 class _ReporteTarjetasState extends State<ReporteTarjetas> {
   final ApiService apiService = ApiService();
-  late final ConsultaBancosApi consultaBancosApi =
-  ConsultaBancosApi(apiService);
+  late final ConsultaBancosApi consultaBancosApi = ConsultaBancosApi(
+    apiService,
+  );
 
   bool _cargando = true;
   String? _error;
@@ -28,8 +31,11 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
   List<Map<String, dynamic>> _datos = [];
   List<Map<String, dynamic>> _datosR = [];
 
-  final NumberFormat _currencyFormat =
-  NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   static const double _colFecha = 140;
   static const double _colMonto = 150;
@@ -83,9 +89,9 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
         _cargando = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al obtener datos: $error')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al obtener datos: $error')));
     }
   }
 
@@ -100,10 +106,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
       required bool esReporte,
     }) {
       mapa.putIfAbsent(fecha, () {
-        return {
-          'fecha': fecha,
-          'bancos': <int, Map<String, dynamic>>{},
-        };
+        return {'fecha': fecha, 'bancos': <int, Map<String, dynamic>>{}};
       });
 
       final bancos = mapa[fecha]!['bancos'] as Map<int, Map<String, dynamic>>;
@@ -133,8 +136,8 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
     for (final item in _datos) {
       final fecha = (item['fecha'] ?? '').toString();
       final idBanco = int.tryParse((item['idBanco'] ?? 0).toString()) ?? 0;
-      final nombreBanco =
-      (item['nombreBanco'] ?? item['banco'] ?? '').toString();
+      final nombreBanco = (item['nombreBanco'] ?? item['banco'] ?? '')
+          .toString();
       final total = _parseToDouble(item['total']);
 
       if (fecha.isEmpty || idBanco <= 0 || nombreBanco.isEmpty) continue;
@@ -151,8 +154,8 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
     for (final item in _datosR) {
       final fecha = (item['fecha'] ?? '').toString();
       final idBanco = int.tryParse((item['idBanco'] ?? 0).toString()) ?? 0;
-      final nombreBanco =
-      (item['nombreBanco'] ?? item['banco'] ?? '').toString();
+      final nombreBanco = (item['nombreBanco'] ?? item['banco'] ?? '')
+          .toString();
       final total = _parseToDouble(item['total']);
 
       if (fecha.isEmpty || idBanco <= 0 || nombreBanco.isEmpty) continue;
@@ -169,20 +172,19 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
     final lista = mapa.values.toList();
 
     lista.sort(
-          (a, b) => a['fecha'].toString().compareTo(b['fecha'].toString()),
+      (a, b) => a['fecha'].toString().compareTo(b['fecha'].toString()),
     );
 
     return lista;
   }
 
   List<Map<String, dynamic>> _obtenerBancosDinamicos(
-      List<Map<String, dynamic>> comparados,
-      ) {
+    List<Map<String, dynamic>> comparados,
+  ) {
     final Map<int, Map<String, dynamic>> bancos = {};
 
     for (final item in comparados) {
-      final bancosFecha =
-      item['bancos'] as Map<int, Map<String, dynamic>>;
+      final bancosFecha = item['bancos'] as Map<int, Map<String, dynamic>>;
 
       bancosFecha.forEach((idBanco, banco) {
         bancos[idBanco] = {
@@ -195,9 +197,8 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
     final lista = bancos.values.toList();
 
     lista.sort(
-          (a, b) => a['nombreBanco']
-          .toString()
-          .compareTo(b['nombreBanco'].toString()),
+      (a, b) =>
+          a['nombreBanco'].toString().compareTo(b['nombreBanco'].toString()),
     );
 
     return lista;
@@ -329,10 +330,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
             Text(
               _fmt(valor),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -353,11 +351,11 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.assessment_rounded, color: Colors.white, size: 28),
-              SizedBox(width: 10),
-              Expanded(
+              const Icon(Icons.assessment_rounded, color: Colors.white, size: 28),
+              const SizedBox(width: 10),
+              const Expanded(
                 child: Text(
                   'Conciliación por rango',
                   style: TextStyle(
@@ -365,6 +363,27 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
+                ),
+              ),
+              Expanded(
+                child: TextButton(
+                  onPressed: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CalIngresoReportesTar(),
+                      ),
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape:  RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      side: BorderSide(color: Colors.red.shade700, width: 3),
+                    ),
+                  ),
+                  child: const Text('Capturar reportes TPV'),
                 ),
               ),
             ],
@@ -419,9 +438,10 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style:
-                    const TextStyle(color: Colors.white70, fontSize: 12)),
+                Text(
+                  label,
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   value,
@@ -432,7 +452,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -463,13 +483,13 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
   }
 
   Widget _tableCell(
-      String text,
-      double width, {
-        Color? color,
-        FontWeight fontWeight = FontWeight.w600,
-        double height = _rowHeight,
-        Color? backgroundColor,
-      }) {
+    String text,
+    double width, {
+    Color? color,
+    FontWeight fontWeight = FontWeight.w600,
+    double height = _rowHeight,
+    Color? backgroundColor,
+  }) {
     return Container(
       width: width,
       height: height,
@@ -495,11 +515,10 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
   }
 
   Widget _buildDataRow(
-      Map<String, dynamic> item,
-      List<Map<String, dynamic>> bancos,
-      ) {
-    final bancosFecha =
-    item['bancos'] as Map<int, Map<String, dynamic>>;
+    Map<String, dynamic> item,
+    List<Map<String, dynamic>> bancos,
+  ) {
+    final bancosFecha = item['bancos'] as Map<int, Map<String, dynamic>>;
 
     bool hayDiferencia = false;
 
@@ -583,11 +602,11 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
   }
 
   Widget _buildTotalRow(
-      List<Map<String, dynamic>> bancos,
-      Map<int, double> totalCorte,
-      Map<int, double> totalReporte,
-      Map<int, double> totalDiferencia,
-      ) {
+    List<Map<String, dynamic>> bancos,
+    Map<int, double> totalCorte,
+    Map<int, double> totalReporte,
+    Map<int, double> totalDiferencia,
+  ) {
     const totalColor = Color(0xFF005498);
     const rowColor = Color(0xFFE8F1FB);
 
@@ -678,7 +697,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
                       child: Column(
                         children: [
                           ...comparados.map(
-                                (item) => _buildDataRow(item, bancos),
+                            (item) => _buildDataRow(item, bancos),
                           ),
                           _buildTotalRow(
                             bancos,
@@ -805,8 +824,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
       double reporte = 0;
 
       for (final item in comparados) {
-        final bancosFecha =
-        item['bancos'] as Map<int, Map<String, dynamic>>;
+        final bancosFecha = item['bancos'] as Map<int, Map<String, dynamic>>;
 
         final datosBanco = bancosFecha[idBanco];
 
@@ -822,8 +840,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
     }
 
     final diasConDiferencia = comparados.where((item) {
-      final bancosFecha =
-      item['bancos'] as Map<int, Map<String, dynamic>>;
+      final bancosFecha = item['bancos'] as Map<int, Map<String, dynamic>>;
 
       for (final banco in bancos) {
         final idBanco = banco['idBanco'] as int;
@@ -845,119 +862,146 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
         centerTitle: true,
         backgroundColor: const Color(0xFF005498),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(onPressed: () => obtenerDatos(widget.fechaini, widget.fechafin), icon: const Icon(Icons.refresh)),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: _cargando
             ? const Center(child: CircularProgressIndicator())
             : _error != null
-            ? Center(
-          child: Text(
-            _error!,
-            textAlign: TextAlign.center,
-          ),
-        )
+            ? Center(child: Text(_error!, textAlign: TextAlign.center))
             : comparados.isEmpty
             ? const Center(
-          child: Text(
-            'No se encontraron datos para el rango seleccionado.',
-            textAlign: TextAlign.center,
-          ),
-        )
+                child: Text(
+                  'No se encontraron datos para el rango seleccionado.',
+                  textAlign: TextAlign.center,
+                ),
+              )
             : SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildHeaderCard(
-                diasConDiferencia,
-                comparados.length,
-              ),
-              const SizedBox(height: 18),
-
-              for (final banco in bancos) ...[
-                Row(
+                child: Column(
                   children: [
-                    _buildKpiTile(
-                      titulo: 'Corte ${banco['nombreBanco']}',
-                      valor:
-                      totalCorte[banco['idBanco']] ?? 0,
-                      color: Colors.blue,
-                      icon: Icons.credit_card_rounded,
-                    ),
-                    const SizedBox(width: 10),
-                    _buildResumenCard(
-                      titulo: 'Dif. ${banco['nombreBanco']}',
-                      diferencia:
-                      totalDiferencia[banco['idBanco']] ??
-                          0,
+                    _buildHeaderCard(diasConDiferencia, comparados.length),
+                    const SizedBox(height: 18),
+
+                    for (final banco in bancos) ...[
+                      Row(
+                        children: [
+                          _buildKpiTile(
+                            titulo: 'Corte ${banco['nombreBanco']}',
+                            valor: totalCorte[banco['idBanco']] ?? 0,
+                            color: Colors.blue,
+                            icon: Icons.credit_card_rounded,
+                          ),
+                          const SizedBox(width: 10),
+                          _buildResumenCard(
+                            titulo: 'Dif. ${banco['nombreBanco']}',
+                            diferencia: totalDiferencia[banco['idBanco']] ?? 0,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+
+                    const SizedBox(height: 12),
+
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF005498), Color(0xFF1976D2)],
+                        ),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(18),
+                          onTap: () {
+                            _mostrarTablaComparativa(
+                              comparados: comparados,
+                              bancos: bancos,
+                              totalCorte: totalCorte,
+                              totalReporte: totalReporte,
+                              totalDiferencia: totalDiferencia,
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 18,
+                            ),
+
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.table_chart_rounded,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      'Detalle tabular',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    //
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Buzonefectivo(
+                                          fechaIni: widget.fechaini,
+                                          fechaFin: widget.fechafin,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.summarize_rounded,
+                                    size: 30,
+                                  ),
+                                  label: const Text(
+                                    'Cajero y buzon',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    //largo del boton
+                                    minimumSize: const Size(250, 40),
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: const Color(0xFF005498),
+
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-              ],
-
-              const SizedBox(height: 12),
-
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFF005498),
-                      Color(0xFF1976D2),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(18),
-                    onTap: () {
-                      _mostrarTablaComparativa(
-                        comparados: comparados,
-                        bancos: bancos,
-                        totalCorte: totalCorte,
-                        totalReporte: totalReporte,
-                        totalDiferencia: totalDiferencia,
-                      );
-                    },
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 18,
-                      ),
-
-                      child: Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.table_chart_rounded,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 10),
-                          Text(
-                            'Detalle tabular',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-
-                        ],
-
-                      ),
-
-                    ),
-                  ),
-                ),
               ),
-            ],
-
-          ),
-        ),
       ),
     );
   }

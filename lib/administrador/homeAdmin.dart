@@ -87,8 +87,8 @@ class HomeAdmin extends StatelessWidget {
                 children: [
                   _adminButton(
                     context,
-                    icon: Icons.person_add_alt_1_rounded,
-                    label: "Usuario",
+                    icon: Icons.manage_accounts_rounded,
+                    label: "Usuarios",
                     color: const Color(0xFF1E88E5),
                     onTap: () {
                       Navigator.push(
@@ -129,16 +129,25 @@ class HomeAdmin extends StatelessWidget {
                   ),
                   _adminButton(
                     context,
-                    icon: Icons.edit_note_rounded,
-                    label: "Capturar Reportes\nde Terminales",
-                    color: const Color(0xFFFB8C00),
+                    icon: Icons.group_add,
+                    label: "Clientes",
+                    color: const Color(0xFF6a8e8f),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const CalIngresoReportesTar(),
+                          builder: (context) => const Manejoclientes(),
                         ),
                       );
+                    },
+                  ),
+                  _adminButton(
+                    context,
+                    icon: Icons.edit_note_rounded,
+                    label: "Global de cobros\nTPV",
+                    color: const Color(0xFFFB8C00),
+                    onTap: () {
+
                     },
                   ),
                   _adminButton(
@@ -155,20 +164,7 @@ class HomeAdmin extends StatelessWidget {
                       );
                     },
                   ),
-                  _adminButton(
-                    context,
-                    icon: Icons.group_add,
-                    label: "Clientes",
-                    color: const Color(0xFF6a8e8f),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Manejoclientes(),
-                        ),
-                      );
-                    },
-                  ),
+
                 ],
               ),
             ),
