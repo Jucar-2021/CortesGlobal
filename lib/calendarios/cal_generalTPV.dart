@@ -1,25 +1,17 @@
-import '../administrador/reportes/ingresoTirasTarje.dart';
+import 'package:cortes_despachador/administrador/reportes/detalle_boucher.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../administrador/authServise/authServise.dart';
 
-class ViewReportes extends StatelessWidget {
-  const ViewReportes({super.key});
+
+class CalTPV extends StatefulWidget {
+  const CalTPV({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const CalIngresoReportesTar();
-  }
+  State<CalTPV> createState() => _CalTPVState();
 }
 
-class CalIngresoReportesTar extends StatefulWidget {
-  const CalIngresoReportesTar({super.key});
-
-  @override
-  State<CalIngresoReportesTar> createState() => _CalIngresoReportesTarState();
-}
-
-class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
+class _CalTPVState extends State<CalTPV> {
   final TextEditingController _fechaSelec = TextEditingController();
   final TextEditingController _fechaVisual = TextEditingController();
   DateTime? _fechaSeleccionada;
@@ -74,7 +66,7 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => IngresoReportes(
+        builder: (context) => DetalleTPV(
           fecha: fecha,
         ),
       ),
@@ -101,7 +93,7 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              "Fecha de para ingresar importes de tiras de TPV",
+              "Fecha para cargar cobros realizados en TPV",
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],

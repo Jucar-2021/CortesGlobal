@@ -6,23 +6,22 @@ class VerCorteAPI {
   VerCorteAPI(this.api);
 
   Future<List<dynamic>> obtenerCortes({required String fecha}) async {
-    final response = await api.postJson(
-      'Consultas/Cortes/cortesDia.php',
-      {'fecha': fecha},
-    );
+    final response = await api.postJson('Consultas/Cortes/cortesDia.php', {
+      'fecha': fecha,
+    });
 
     final data = response['data'];
     if (data is List) {
-      print('Respuesta de cortesDia.php: $data');
       return data;
     }
     return [];
   }
 
-  Future<List<dynamic>> consumoClientes(
-      {required String idUsuario,
-      required String fecha,
-      required String turno}) async {
+  Future<List<dynamic>> consumoClientes({
+    required String idUsuario,
+    required String fecha,
+    required String turno,
+  }) async {
     final response = await api.postJson(
       'Consultas/Cortes/consumoClientes.php',
       {'idUsuario': idUsuario, 'fecha': fecha, 'turno': turno},

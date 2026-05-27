@@ -1,6 +1,7 @@
+import '../administrador/reportes/detalle_boucher.dart';
 import 'package:flutter/material.dart';
-import '../calendarios/cal_ingresoReportesTar.dart';
 import '../calendarios/cal_reportesTarjetas.dart';
+import '../calendarios/cal_generalTPV.dart';
 import '../calendarios/cal_verCortes.dart';
 import 'bancos/bancos_manejo.dart';
 import '../administrador/authServise/authServise.dart';
@@ -147,7 +148,12 @@ class HomeAdmin extends StatelessWidget {
                     label: "Global de cobros\nTPV",
                     color: const Color(0xFFFB8C00),
                     onTap: () {
-
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CalTPV(),
+                        ),
+                      );
                     },
                   ),
                   _adminButton(
