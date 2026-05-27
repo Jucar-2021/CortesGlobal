@@ -130,20 +130,6 @@ class HomeAdmin extends StatelessWidget {
                   ),
                   _adminButton(
                     context,
-                    icon: Icons.group_add,
-                    label: "Clientes",
-                    color: const Color(0xFF6a8e8f),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const Manejoclientes(),
-                        ),
-                      );
-                    },
-                  ),
-                  _adminButton(
-                    context,
                     icon: Icons.edit_note_rounded,
                     label: "Global de cobros\nTPV",
                     color: const Color(0xFFFB8C00),
@@ -156,6 +142,30 @@ class HomeAdmin extends StatelessWidget {
                       );
                     },
                   ),
+                  _adminButton(
+                    context,
+                    icon: Icons.group_add,
+                    label: "Gestion\nClientes",
+                    color: const Color(0xFF6a8e8f),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Manejoclientes(),
+                        ),
+                      );
+                    },
+                  ),
+                  _adminButton(
+                    context,
+                    icon: Icons.local_gas_station_rounded,
+                    label: "Consumo\nClientes",
+                    color: const Color(0xFF6a8e8f),
+                    onTap: () {
+
+                    },
+                  ),
+
                   _adminButton(
                     context,
                     icon: Icons.assured_workload_rounded,
