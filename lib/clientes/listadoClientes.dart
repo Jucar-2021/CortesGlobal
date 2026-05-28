@@ -28,7 +28,6 @@ class _ListadoclientesState extends State<Listadoclientes> {
   final ApiService apiService = ApiService();
   late final ClientesApi clientesApi;
   late Future<List<Map<String, dynamic>>> _futureClientes;
-
   List<Map<String, dynamic>> _clientes = [];
 
   SharedPreferences? _prefs;

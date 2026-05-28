@@ -7,6 +7,7 @@ import 'bancos/bancos_manejo.dart';
 import '../administrador/authServise/authServise.dart';
 import '../administrador/adminUser/listadoUser.dart';
 import 'clientes/manejoClientes.dart';
+import '../calendarios/cal_gral_consumos_clientes.dart';
 
 class HomeAdmin extends StatelessWidget {
   const HomeAdmin({super.key});
@@ -162,6 +163,12 @@ class HomeAdmin extends StatelessWidget {
                     label: "Consumo\nClientes",
                     color: const Color(0xFF6a8e8f),
                     onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CalConsumoClientes (),
+                        ),
+                      );
 
                     },
                   ),

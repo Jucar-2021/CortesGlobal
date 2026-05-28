@@ -1,17 +1,17 @@
-import '../administrador/reportes/detalle_boucher.dart';
+import '../administrador/clientes/consumosClientes.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../administrador/authServise/authServise.dart';
 
 
-class CalTPV extends StatefulWidget {
-  const CalTPV({super.key});
+class CalConsumoClientes extends StatefulWidget {
+  const CalConsumoClientes({super.key});
 
   @override
-  State<CalTPV> createState() => _CalTPVState();
+  State<CalConsumoClientes> createState() => _CalConsumoClientesState();
 }
 
-class _CalTPVState extends State<CalTPV> {
+class _CalConsumoClientesState extends State<CalConsumoClientes> {
   final TextEditingController _fechaSelec = TextEditingController();
   final TextEditingController _fechaVisual = TextEditingController();
   DateTime? _fechaSeleccionada;
@@ -66,7 +66,7 @@ class _CalTPVState extends State<CalTPV> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DetalleTPV(
+        builder: (context) => ClienteSaldos(
           fecha: fecha,
         ),
       ),
@@ -93,7 +93,7 @@ class _CalTPVState extends State<CalTPV> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              "Fecha para cargar cobros realizados en TPV",
+              "Fecha para cargar consumo detallado por cliente",
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
@@ -202,7 +202,7 @@ class _CalTPVState extends State<CalTPV> {
 
                     // Footer discreto
                     Text(
-                      "Nota: solo se veran los cortes cerrados.",
+                      "Nota: Solo se vera el consumo de clientes de la fecha seleccionada.",
                       style: TextStyle(
                         fontSize: 12,
                         // ignore: deprecated_member_use
