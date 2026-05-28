@@ -79,7 +79,6 @@ class DocuementosApi {
   // Eliminacion de datos
   Future<void> eliminarDatos({required int id, String? banco}) async {
     print('Eliminando tarjeta TarjetasCajero con id: $id');
-    print(' Banco: $banco');
     await api.postJson('TarjetasCajero/eliminar.php', {
       'id': id,
       'banco': banco,

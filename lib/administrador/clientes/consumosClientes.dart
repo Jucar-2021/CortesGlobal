@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../cortes/listadoCortes.dart';
 import '../../api/client/consumos_api.dart';
 import '../../api/consumoPHP.dart';

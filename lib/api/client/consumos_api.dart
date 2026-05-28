@@ -11,7 +11,6 @@ class ConsumosApi {
     final data = res['data'];
 
     if (data is List) {
-      print('Consumos obtenidos: $data');
       return data.map((e) => Map<String, dynamic>.from(e)).toList();
     } else {
       throw Exception('Respuesta inesperada: "data" no es una lista');
