@@ -693,7 +693,7 @@ class _ClienteSaldosState extends State<ClienteSaldos> {
       appBar: AppBar(
         elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.indigo.shade700,
+        backgroundColor: Colors.indigo.shade100,
         title: const Text(
           'Saldos de Clientes',
           style: TextStyle(
