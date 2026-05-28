@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cortes_despachador/tarjetasCajero/listadoTPV.dart';
 import 'tarjetasCajero/baucherCajero.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +5,8 @@ import 'clientes/listadoClientes.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api/cortes/guardarCorte_api.dart';
-import 'api/telegramSend_api.dart';
 import 'api/consumoPHP.dart';
+import 'mensajes/sendCorte.dart';
 
 class DatoCorte extends StatefulWidget {
   const DatoCorte({
@@ -48,7 +46,6 @@ class _DatoCorteState extends State<DatoCorte> {
   final TextEditingController _billetesController = TextEditingController();
   final TextEditingController _monedasController = TextEditingController();
 
-  final TelegramApi _corteTelegram = TelegramApi(ApiService());
 
   double _totalCobrosTPV = 0;
   double _totalClientes = 0;
@@ -61,7 +58,7 @@ class _DatoCorteState extends State<DatoCorte> {
   SharedPreferences? _prefs;
   bool _prefsReady = false;
 
-
+ late final Notificaciones notificaciones = Notificaciones();
 
   // ======== FORMATO DINERO ========
   final NumberFormat _currencyFormat = NumberFormat.currency(
@@ -373,41 +370,30 @@ class _DatoCorteState extends State<DatoCorte> {
     );
   }
 
+
   // ======== ENVIAR A TELEGRAM ========
   Future<void> _enviarCorteTelegram() async {
-    final mensaje =
-        '''
-<b>⛽ CORTE DESPACHADOR</b>
-👤 <b>$nombre $apellidoPaterno $apellidoMaterno</b>
-
-━━━━━━━━━━━━━━━━━━
-⛽ <b>Producto:</b> <code>$turno</code>
-📅 <b>Fecha:</b> <b>$fecha</b>
-━━━━━━━━━━━━━━━━━━
-💰 <b>Venta del día:</b> ${_fmt(double.tryParse(_ventaController.text) ?? 0)}
-
-♨🏦 <b>Tarjetas Bancarias:</b> ${_fmt(_totalCobrosTPV)}
-
-
-👥 <b>Total clientes:</b> ${_fmt(_totalClientes)}
-
-━━━━━━━━━━━━━━━━━━
-🏧 <b>Depósitos Cajero:</b> ${_fmt((_totalCajero))}
-📥 <b>Efectivo oficina:</b> ${_fmt(_totalBuzon)}
-🧾 <b>Gastos:</b> ${_fmt(double.tryParse(_gastosController.text) ?? 0)}
-
-━━━━━━━━━━━━━━━━━━
-🔴 <b>TOTAL ENTREGADO:</b>
-🟰 <b>${_fmt((totalFinal) + (double.tryParse(_billetesController.text) ?? 0) + (double.tryParse(_monedasController.text) ?? 0))}</b>
-
-💵 <b>Billetes: ${_fmt(double.tryParse(_billetesController.text) ?? 0)}</b>
-💰 <b>Monedas: ${_fmt(double.tryParse(_monedasController.text) ?? 0)}</b>
-━━━━━━━━━━━━━━━━━━
-🟢 <b>TOTAL EFECTIVO:</b>
-💰 <b>${_fmt((double.tryParse(_ventaController.text) ?? 0) - _totalCobrosTPV - _totalClientes - (double.tryParse(_gastosController.text) ?? 0))}</b>
-''';
-
-    await _corteTelegram.sendMessage(mensaje);
+try{
+    await notificaciones.enviarCorte(
+      nombre: nombre,
+      apellidoPaterno: apellidoPaterno,
+      apellidoMaterno: apellidoMaterno,
+      turno: turno,
+      fecha: fecha,
+      totalFinal: totalFinal,
+      totalCobrosTPV: _totalCobrosTPV,
+      totalClientes: _totalClientes,
+      totalCajero: _totalCajero,
+      totalBuzon: _totalBuzon,
+      ventaController: _ventaController.text,
+      gastosController: _gastosController.text,
+      billetesController: _billetesController.text,
+      monedasController: _monedasController.text,
+    );}catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al enviar el corte a Telegram: $e")),
+      );
+    }
   }
 
   //Show de confirmacion de corte guardado exitosamente
@@ -512,6 +498,7 @@ class _DatoCorteState extends State<DatoCorte> {
                       const SizedBox(height: 18),
                       _buildSectionTitle("Tarjetas"),
                       _buildResumenCard(
+
                         titulo: "Total cobros TPV",
                         valor: _fmt(_totalCobrosTPV),
                         icono: Icons.people_alt_outlined,

@@ -1,4 +1,4 @@
-import 'consumoPHP.dart';
+import '../consumoPHP.dart';
 
 class TelegramApi {
   final ApiService api;
