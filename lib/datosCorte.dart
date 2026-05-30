@@ -287,7 +287,7 @@ class _DatoCorteState extends State<DatoCorte> {
 
       );
 
-      await _enviarCorteTelegram();
+     // await _enviarCorteTelegram();
 
       // Limpia borrador local cuando guardó exitosamente
       await _clearDraft();

@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Cortes Despachador",
+      title: "Cortes Chico",
       theme: base,
       darkTheme: ThemeData(
         useMaterial3: true,
