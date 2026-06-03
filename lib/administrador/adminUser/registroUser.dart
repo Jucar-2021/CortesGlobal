@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-
 import '../../api/consumoPHP.dart';
 import 'package:flutter/material.dart';
 import '../../api/user/user_api.dart';
@@ -36,16 +35,17 @@ class _NuevoUsuarioState extends State<NuevoUsuario> {
   bool _registrando = false;
 
   final ApiService apiService = ApiService();
-  late final UserApi userApi ;
+  late final UserApi userApi;
 
-  final upperCaseFormatter = TextInputFormatter.withFunction(
-        (oldValue, newValue) {
-      return newValue.copyWith(
-        text: newValue.text.toUpperCase(),
-        selection: newValue.selection,
-      );
-    },
-  );
+  final upperCaseFormatter = TextInputFormatter.withFunction((
+    oldValue,
+    newValue,
+  ) {
+    return newValue.copyWith(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  });
 
   @override
   void initState() {
@@ -56,7 +56,7 @@ class _NuevoUsuarioState extends State<NuevoUsuario> {
     apellidoMaterno.text = "";
     pass.text = "";
     pass2.text = "";
-userApi = UserApi(apiService);
+    userApi = UserApi(apiService);
   }
 
   @override
@@ -101,9 +101,9 @@ userApi = UserApi(apiService);
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (!mounted) return;
       setState(() => _registrando = false);
@@ -134,7 +134,7 @@ userApi = UserApi(apiService);
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/login',
-                    (route) => false,
+                (route) => false,
               );
             },
           ),
@@ -146,11 +146,7 @@ userApi = UserApi(apiService);
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              cs.primary.withOpacity(0.12),
-              cs.surface,
-              cs.surface,
-            ],
+            colors: [cs.primary.withOpacity(0.12), cs.surface, cs.surface],
           ),
         ),
         child: SafeArea(
@@ -177,8 +173,10 @@ userApi = UserApi(apiService);
                               CircleAvatar(
                                 radius: 22,
                                 backgroundColor: cs.primary.withOpacity(0.15),
-                                child: Icon(Icons.person_add_alt_1,
-                                    color: cs.primary),
+                                child: Icon(
+                                  Icons.person_add_alt_1,
+                                  color: cs.primary,
+                                ),
                               ),
                               const SizedBox(width: 12),
                               const Expanded(
@@ -188,8 +186,9 @@ userApi = UserApi(apiService);
                                     Text(
                                       "Nuevo usuario",
                                       style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w800),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
                                     SizedBox(height: 2),
                                     Text(
@@ -210,9 +209,7 @@ userApi = UserApi(apiService);
                             maxLength: 50,
                             keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
-                            inputFormatters: [
-                              upperCaseFormatter,
-                            ],
+                            inputFormatters: [upperCaseFormatter],
                             decoration: InputDecoration(
                               counterText: "",
                               labelText: "Nombre",
@@ -239,9 +236,7 @@ userApi = UserApi(apiService);
                             maxLength: 50,
                             keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
-                            inputFormatters: [
-                              upperCaseFormatter,
-                            ],
+                            inputFormatters: [upperCaseFormatter],
                             decoration: InputDecoration(
                               counterText: "",
                               labelText: "Apellido Paterno",
@@ -268,9 +263,7 @@ userApi = UserApi(apiService);
                             maxLength: 50,
                             keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
-                            inputFormatters: [
-                              upperCaseFormatter,
-                            ],
+                            inputFormatters: [upperCaseFormatter],
                             decoration: InputDecoration(
                               counterText: "",
                               labelText: "Apellido Materno",
@@ -314,8 +307,9 @@ userApi = UserApi(apiService);
                                 return 'Mínimo 5 caracteres';
                               }
                               // opcional: solo letras/números
-                              final ok =
-                                  RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value);
+                              final ok = RegExp(
+                                r'^[a-zA-Z0-9_]+$',
+                              ).hasMatch(value);
                               if (!ok) return 'Solo letras, números o _';
                               return null;
                             },
@@ -336,9 +330,11 @@ userApi = UserApi(apiService);
                               prefixIcon: const Icon(Icons.lock),
                               suffixIcon: IconButton(
                                 tooltip: _verPass ? 'Ocultar' : 'Mostrar',
-                                icon: Icon(_verPass
-                                    ? Icons.visibility_off
-                                    : Icons.visibility),
+                                icon: Icon(
+                                  _verPass
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
                                 onPressed: () =>
                                     setState(() => _verPass = !_verPass),
                               ),
@@ -371,9 +367,11 @@ userApi = UserApi(apiService);
                               prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 tooltip: _verPass2 ? 'Ocultar' : 'Mostrar',
-                                icon: Icon(_verPass2
-                                    ? Icons.visibility_off
-                                    : Icons.visibility),
+                                icon: Icon(
+                                  _verPass2
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
                                 onPressed: () =>
                                     setState(() => _verPass2 = !_verPass2),
                               ),
@@ -405,12 +403,13 @@ userApi = UserApi(apiService);
                                       width: 18,
                                       height: 18,
                                       child: CircularProgressIndicator(
-                                          strokeWidth: 2),
+                                        strokeWidth: 2,
+                                      ),
                                     )
                                   : const Icon(Icons.check_circle),
-                              label: Text(_registrando
-                                  ? "Registrando..."
-                                  : "Registrar"),
+                              label: Text(
+                                _registrando ? "Registrando..." : "Registrar",
+                              ),
                             ),
                           ),
 

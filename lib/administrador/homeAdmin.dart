@@ -1,4 +1,3 @@
-import '../administrador/reportes/detalle_boucher.dart';
 import 'package:flutter/material.dart';
 import '../calendarios/cal_reportesTarjetas.dart';
 import '../calendarios/cal_generalTPV.dart';
@@ -35,7 +34,11 @@ class HomeAdmin extends StatelessWidget {
             tooltip: 'Cerrar sesión',
             onPressed: () async {
               await AuthService.cerrarSesion();
-              Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
             },
           ),
         ],
@@ -59,10 +62,7 @@ class HomeAdmin extends StatelessWidget {
               children: [
                 Text(
                   "Bienvenido",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white70,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.white70),
                 ),
                 SizedBox(height: 6),
                 Text(
@@ -109,9 +109,7 @@ class HomeAdmin extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => Cortes(),
-                        ),
+                        MaterialPageRoute(builder: (context) => Cortes()),
                       );
                     },
                   ),
@@ -137,9 +135,7 @@ class HomeAdmin extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const CalTPV(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const CalTPV()),
                       );
                     },
                   ),
@@ -166,10 +162,9 @@ class HomeAdmin extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const CalConsumoClientes (),
+                          builder: (context) => const CalConsumoClientes(),
                         ),
                       );
-
                     },
                   ),
 
@@ -187,7 +182,6 @@ class HomeAdmin extends StatelessWidget {
                       );
                     },
                   ),
-
                 ],
               ),
             ),
@@ -224,11 +218,7 @@ class HomeAdmin extends StatelessWidget {
                   color: color.withOpacity(0.12),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  size: 34,
-                  color: color,
-                ),
+                child: Icon(icon, size: 34, color: color),
               ),
               const SizedBox(height: 18),
               Text(
