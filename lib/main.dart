@@ -84,6 +84,7 @@ class _CortesState extends State<Cortes> {
   final TextEditingController usuario = TextEditingController();
   final TextEditingController pass = TextEditingController();
   final TextEditingController claveAcceso = TextEditingController();
+  final TextEditingController codigoEmpresa = TextEditingController();
 
   late Future<void> consultabd;
 
@@ -93,14 +94,13 @@ class _CortesState extends State<Cortes> {
   final ApiService apiService = ApiService();
   late final UserApi userApi = UserApi(apiService);
 
-
   @override
   void initState() {
     super.initState();
     usuario.text = "";
     pass.text = "";
     claveAcceso.text = "";
-
+    codigoEmpresa.text = "";
     // Si quieres probar conexión, mejor un endpoint real (ping.php)
     apiService
         .postJson('ping.php', {})
@@ -117,6 +117,7 @@ class _CortesState extends State<Cortes> {
     usuario.dispose();
     pass.dispose();
     claveAcceso.dispose();
+    codigoEmpresa.dispose();
     super.dispose();
   }
 
@@ -125,10 +126,25 @@ class _CortesState extends State<Cortes> {
 
     final user = usuario.text.trim();
     final pwd = pass.text.trim();
+    final empresa = codigoEmpresa.text.trim();
+
+    if (empresa.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ingresa el código de empresa')),
+      );
+      return;
+    }
 
     setState(() => _loginLoading = true);
 
-    final datosUsuario = await userApi.validarUsuario(user, pwd);
+    final datosUsuario = await userApi
+        .validarUsuario(user, pwd, empresa)
+        .catchError((e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error al iniciar sesión: $e')),
+          );
+          return null;
+        });
 
     if (!mounted) return;
     setState(() => _loginLoading = false);
@@ -268,6 +284,22 @@ class _CortesState extends State<Cortes> {
                                   ),
                                 ),
                                 const SizedBox(height: 14),
+                                TextField(
+                                  controller: codigoEmpresa,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 6,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    counterText: "",
+                                    labelText: "Código de Empresa",
+                                    hintText: "Ejemplo: 1234",
+                                    prefixIcon: const Icon(Icons.business),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
                                 TextField(
                                   controller: usuario,
                                   textInputAction: TextInputAction.next,
