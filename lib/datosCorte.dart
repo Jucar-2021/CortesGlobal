@@ -46,7 +46,6 @@ class _DatoCorteState extends State<DatoCorte> {
   final TextEditingController _billetesController = TextEditingController();
   final TextEditingController _monedasController = TextEditingController();
 
-
   double _totalCobrosTPV = 0;
   double _totalClientes = 0;
   double _totalCajero = 0;
@@ -58,7 +57,7 @@ class _DatoCorteState extends State<DatoCorte> {
   SharedPreferences? _prefs;
   bool _prefsReady = false;
 
- late final Notificaciones notificaciones = Notificaciones();
+  late final Notificaciones notificaciones = Notificaciones();
 
   // ======== FORMATO DINERO ========
   final NumberFormat _currencyFormat = NumberFormat.currency(
@@ -284,7 +283,6 @@ class _DatoCorteState extends State<DatoCorte> {
         cajero,
         buzon,
         gastos,
-
       );
 
       await _enviarCorteTelegram();
@@ -350,7 +348,6 @@ class _DatoCorteState extends State<DatoCorte> {
     double cajero,
     double buzon,
     double gastos,
-
   ) async {
     final corteApi = CorteApi(ApiService());
 
@@ -365,31 +362,29 @@ class _DatoCorteState extends State<DatoCorte> {
       cajero: cajero,
       buzon: buzon,
       gastos: gastos,
-
-
     );
   }
 
-
   // ======== ENVIAR A TELEGRAM ========
   Future<void> _enviarCorteTelegram() async {
-try{
-    await notificaciones.enviarCorte(
-      nombre: nombre,
-      apellidoPaterno: apellidoPaterno,
-      apellidoMaterno: apellidoMaterno,
-      turno: turno,
-      fecha: fecha,
-      totalFinal: totalFinal,
-      totalCobrosTPV: _totalCobrosTPV,
-      totalClientes: _totalClientes,
-      totalCajero: _totalCajero,
-      totalBuzon: _totalBuzon,
-      ventaController: _ventaController.text,
-      gastosController: _gastosController.text,
-      billetesController: _billetesController.text,
-      monedasController: _monedasController.text,
-    );}catch(e){
+    try {
+      await notificaciones.enviarCorte(
+        nombre: nombre,
+        apellidoPaterno: apellidoPaterno,
+        apellidoMaterno: apellidoMaterno,
+        turno: turno,
+        fecha: fecha,
+        totalFinal: totalFinal,
+        totalCobrosTPV: _totalCobrosTPV,
+        totalClientes: _totalClientes,
+        totalCajero: _totalCajero,
+        totalBuzon: _totalBuzon,
+        ventaController: _ventaController.text,
+        gastosController: _gastosController.text,
+        billetesController: _billetesController.text,
+        monedasController: _monedasController.text,
+      );
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error al enviar el corte a Telegram: $e")),
       );
@@ -498,7 +493,6 @@ try{
                       const SizedBox(height: 18),
                       _buildSectionTitle("Tarjetas"),
                       _buildResumenCard(
-
                         titulo: "Total cobros TPV",
                         valor: _fmt(_totalCobrosTPV),
                         icono: Icons.people_alt_outlined,
