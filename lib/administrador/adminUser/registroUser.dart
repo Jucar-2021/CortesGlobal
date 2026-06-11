@@ -103,7 +103,7 @@ class _NuevoUsuarioState extends State<NuevoUsuario> {
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ).showSnackBar(SnackBar(content: Text('Error reg: $e')));
     } finally {
       if (!mounted) return;
       setState(() => _registrando = false);

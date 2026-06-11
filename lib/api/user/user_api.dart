@@ -45,9 +45,12 @@ class UserApi {
     }
   }
 
-  Future<Map<String, dynamic>?> validarAdmin(int clave) async {
+  Future<Map<String, dynamic>?> validarAdmin(int clave, String empresa) async {
     try {
-      final res = await api.postJson('User/validarAdmin.php', {'clave': clave});
+      final res = await api.postJson('User/validarAdmin.php', {
+        'clave': clave,
+        'empresa': empresa,
+      });
 
       if (res['ok'] == true) {
         await AuthService.guardarToken(res['token']);

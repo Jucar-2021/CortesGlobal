@@ -85,6 +85,7 @@ class _CortesState extends State<Cortes> {
   final TextEditingController pass = TextEditingController();
   final TextEditingController claveAcceso = TextEditingController();
   final TextEditingController codigoEmpresa = TextEditingController();
+  final TextEditingController codigoEmpresaAdmin = TextEditingController();
 
   late Future<void> consultabd;
 
@@ -101,7 +102,7 @@ class _CortesState extends State<Cortes> {
     pass.text = "";
     claveAcceso.text = "";
     codigoEmpresa.text = "";
-    // Si quieres probar conexión, mejor un endpoint real (ping.php)
+    // probar conexión, mejor un endpoint real (ping.php)
     apiService
         .postJson('ping.php', {})
         .then((data) {
@@ -118,6 +119,7 @@ class _CortesState extends State<Cortes> {
     pass.dispose();
     claveAcceso.dispose();
     codigoEmpresa.dispose();
+    codigoEmpresaAdmin.dispose();
     super.dispose();
   }
 
@@ -183,19 +185,23 @@ class _CortesState extends State<Cortes> {
 
     if (!mounted) return;
 
+    codigoEmpresaAdmin.clear();
+    claveAcceso.clear();
+
     if (accesoConcedido) {
-      claveAcceso.clear();
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const HomeAdmin()),
       );
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Acceso concedido.')));
     } else {
-      claveAcceso.clear();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Acceso denegado. Clave incorrecta.')),
+        const SnackBar(
+          content: Text('Acceso denegado. Verifique empresa y clave.'),
+        ),
       );
     }
   }
@@ -395,34 +401,58 @@ class _CortesState extends State<Cortes> {
     );
   }
 
-  // ventana emergente para solicitar clave de acceso al registrar usuario
   Future<bool> mostrarDialogoClaveAcceso(BuildContext context) async {
     return showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Clave de Acceso Requerida'),
-          content: TextField(
-            keyboardType: TextInputType.number,
-            controller: claveAcceso,
-            textInputAction: TextInputAction.done,
-            obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Ingrese la clave de acceso',
-            ),
+
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: codigoEmpresaAdmin,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'Código Empresa',
+                  prefixIcon: Icon(Icons.business),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              TextField(
+                keyboardType: TextInputType.number,
+                controller: claveAcceso,
+                textInputAction: TextInputAction.done,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Ingrese la clave de acceso',
+                  prefixIcon: Icon(Icons.lock),
+                ),
+              ),
+            ],
           ),
+
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Cancelar'),
             ),
+
             FilledButton(
               onPressed: () async {
-                final clave = await userApi.validarAdmin(
+                final empresa = codigoEmpresaAdmin.text.trim();
+
+                final acceso = await userApi.validarAdmin(
                   int.tryParse(claveAcceso.text.trim()) ?? 0,
+                  empresa,
                 );
-                // ignore: use_build_context_synchronously
-                Navigator.of(context).pop(clave != null);
+
+                if (!context.mounted) return;
+
+                Navigator.of(context).pop(acceso != null);
               },
               child: const Text('Aceptar'),
             ),
