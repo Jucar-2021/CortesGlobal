@@ -54,6 +54,11 @@ class UserApi {
 
       if (res['ok'] == true) {
         await AuthService.guardarToken(res['token']);
+
+        print(
+          'Token guardado: ${res['token']}',
+        ); // Debug: Verificar token guardado
+
         return res;
       }
 

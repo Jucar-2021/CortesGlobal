@@ -43,6 +43,8 @@ class ClienteAdminApi {
   }
 
   Future<void> eliminarCliente({required int IdCliente}) async {
-    await api.postJson('Bancos/manejo/eliminar.php', {'IdCliente': IdCliente});
+    await api.postJson('Clientes/manejo/eliminar.php', {
+      'IdCliente': IdCliente,
+    });
   }
 }

@@ -412,6 +412,7 @@ class _CortesState extends State<Cortes> {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
+                keyboardType: TextInputType.number,
                 controller: codigoEmpresaAdmin,
                 textInputAction: TextInputAction.next,
                 decoration: const InputDecoration(
