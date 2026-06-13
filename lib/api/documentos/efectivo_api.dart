@@ -10,30 +10,24 @@ class ConsultaEfectivoApi {
   }) {
     return api
         .postJson('Consultas/Documentos/obtenerBuzon.php', {
-      'fechaInicio': fechaIni,
-      'fechaFin': fechaFin,
-    })
+          'fechaInicio': fechaIni,
+          'fechaFin': fechaFin,
+        })
         .then((res) {
+          if (res['ok'] != true) {
+            throw Exception(res['error'] ?? 'Error al obtener datos del buzón');
+          }
 
-      if (res['ok'] != true) {
-        throw Exception(
-          res['error'] ?? 'Error al obtener datos del buzón',
-        );
-      }
+          final data = res['registros'];
 
-      final data = res['registros'];
-
-      if (data is List) {
-        print('Datos del buzón obtenidos: $data');
-        return data
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList();
-      } else {
-        throw Exception(
-          'Respuesta inesperada: "registros" no es una lista',
-        );
-      }
-    });
+          if (data is List) {
+            return data.map((e) => Map<String, dynamic>.from(e)).toList();
+          } else {
+            throw Exception(
+              'Respuesta inesperada: "registros" no es una lista',
+            );
+          }
+        });
   }
 
   Future<List<Map<String, dynamic>>> obtenerCajero({
@@ -42,30 +36,25 @@ class ConsultaEfectivoApi {
   }) {
     return api
         .postJson('Consultas/Documentos/obtenerCajero.php', {
-      'fechaInicio': fechaIni,
-      'fechaFin': fechaFin,
-    })
+          'fechaInicio': fechaIni,
+          'fechaFin': fechaFin,
+        })
         .then((res) {
+          if (res['ok'] != true) {
+            throw Exception(
+              res['error'] ?? 'Error al obtener datos del cajero',
+            );
+          }
 
-      if (res['ok'] != true) {
-        throw Exception(
-          res['error'] ?? 'Error al obtener datos del cajero',
-        );
-      }
+          final data = res['registros'];
 
-      final data = res['registros'];
-
-      if (data is List) {
-        print('Datos del buzón obtenidos: $data');
-        return data
-            .map((e) => Map<String, dynamic>.from(e))
-            .toList();
-      } else {
-        throw Exception(
-          'Respuesta inesperada: "registros" no es una lista',
-        );
-      }
-    });
+          if (data is List) {
+            return data.map((e) => Map<String, dynamic>.from(e)).toList();
+          } else {
+            throw Exception(
+              'Respuesta inesperada: "registros" no es una lista',
+            );
+          }
+        });
   }
-  }
-
+}

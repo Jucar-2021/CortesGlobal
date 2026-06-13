@@ -124,7 +124,9 @@ class _IngresoState extends State<Ingreso> {
     if (turnoSeleccionado == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Selecciona el turno en qel que abriste turno'),
+          content: Text(
+            'Selecciona el turno en que abriste tu turno para continuar',
+          ),
         ),
       );
       return;
@@ -164,7 +166,11 @@ class _IngresoState extends State<Ingreso> {
               const SizedBox(height: 12),
               Text(
                 'Para modificar o corregir, contacta al administrador.',
-                style: const TextStyle(fontSize: 16, color: Colors.red, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -446,6 +452,7 @@ class _IngresoState extends State<Ingreso> {
       ),
     );
   }
+
   //formato de fecha DD/MM/YYYY
   String _formatoFecha(String fecha) {
     try {
