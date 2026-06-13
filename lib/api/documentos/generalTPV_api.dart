@@ -24,13 +24,12 @@ class GenetalTPVapi {
     required int idBancoNuevo,
   }) async {
     try {
-      print('Enviando solicitud para actualizar banco del cobro $idCobro al banco $idBancoNuevo');
+      print(
+        'Enviando solicitud para actualizar banco del cobro $idCobro al banco $idBancoNuevo',
+      );
       final res = await api.postJson(
         'Consultas/CobrosTPV/actualizarBanco.php',
-        {
-          'idCobro': idCobro,
-          'idNuevoBanco': idBancoNuevo,
-        },
+        {'idCobro': idCobro, 'idNuevoBanco': idBancoNuevo},
       );
 
       if (res['ok'] == true) {
@@ -52,10 +51,14 @@ class GenetalTPVapi {
         'Consultas/CobrosTPV/actualizarImporte.php',
         {'idCobro': idCobro, 'nuevoImporte': nuevoImporte},
       );
-      if (res['success'] == true) {
+
+      if (res['ok'] == true) {
         print('Importe actualizado correctamente');
       } else {
-        print('Error al actualizar el importe: ${res['message']}');
+        print(
+          'Error al actualizar el importe: '
+          '${res['message']}',
+        );
       }
     } catch (e) {
       print('Error en la solicitud: $e');
@@ -67,10 +70,13 @@ class GenetalTPVapi {
       final res = await api.postJson('Consultas/CobrosTPV/eliminarCobro.php', {
         'idCobro': idCobro,
       });
-      if (res['success'] == true) {
+      if (res['ok'] == true) {
         print('Cobro eliminado correctamente');
       } else {
-        print('Error al eliminar el cobro: ${res['message']}');
+        print(
+          'Error al eliminar el cobro: '
+          '${res['message']}',
+        );
       }
     } catch (e) {
       print('Error en la solicitud: $e');

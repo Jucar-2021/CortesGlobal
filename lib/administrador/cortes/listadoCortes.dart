@@ -38,9 +38,6 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
   void initState() {
     super.initState();
     fecha = widget.fecha;
-    setState(() {
-      verCorteAPI.obtenerCortes(fecha: fecha);
-    });
   }
 
   Future<List<dynamic>> _consumoClientes({
@@ -643,8 +640,15 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                               valueColor: const Color(0xFFDD7200),
                               bold: true,
                             ),
+                            _buildDetailRow(
+                              "Efectivo entregado",
+                              _fmt(_parseToDouble(corte['efectivoEntregado'])),
+                              valueColor: const Color.fromARGB(255, 0, 221, 11),
+                              bold: true,
+                            ),
                           ],
                         ),
+
                         const SizedBox(height: 14),
                         _buildSectionCard(
                           title: "Detalle de clientes",
@@ -734,6 +738,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                               TextButton(
                                 onPressed: () =>
                                     Navigator.pop(confirmContext, false),
+
                                 child: const Text("Cancelar"),
                               ),
                               ElevatedButton(
