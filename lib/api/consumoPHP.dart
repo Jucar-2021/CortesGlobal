@@ -3,7 +3,7 @@ import 'dart:convert';
 import '../administrador/authServise/authServise.dart';
 
 class ApiService {
-  final String baseUrl = 'http://dev-soluciones.com/api2';
+  final String baseUrl = 'https://dev-soluciones.com/api2';
   /*'https://apiglob-production.up.railway.app';*/
   Uri _uri(String endpoint) => Uri.parse('$baseUrl/$endpoint');
 
