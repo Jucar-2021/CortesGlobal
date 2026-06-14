@@ -1,4 +1,4 @@
-package com.example.cortes_despachador
+package com.operagas.app
 
 import io.flutter.embedding.android.FlutterActivity
 

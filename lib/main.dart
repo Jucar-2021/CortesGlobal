@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Cortes Chico",
+      title: "OperaGas - Gestión de Cortes",
       theme: base,
       darkTheme: ThemeData(
         useMaterial3: true,
