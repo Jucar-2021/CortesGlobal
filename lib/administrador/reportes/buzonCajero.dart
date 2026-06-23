@@ -146,6 +146,7 @@ class _BuzonefectivoState extends State<Buzonefectivo> {
           color: Colors.white,
           fontWeight: FontWeight.bold,
         ),
+        columnSpacing: 24,
         columns: const [
           DataColumn(label: Text('Usuario')),
           DataColumn(label: Text('Total cajero')),
@@ -241,30 +242,53 @@ class _BuzonefectivoState extends State<Buzonefectivo> {
           IconButton(onPressed: fechDatos, icon: const Icon(Icons.refresh)),
         ],
       ),
-      body: cargando
-          ? const Center(child: CircularProgressIndicator())
-          : error != null
-          ? Center(child: Text(error!, textAlign: TextAlign.center))
-          : resumen.isEmpty
-          ? const Center(child: Text('No hay datos registrados'))
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _buildPeriodoConsulta(),
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+      body: SafeArea(
+        child: cargando
+            ? const Center(child: CircularProgressIndicator())
+            : error != null
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(error!, textAlign: TextAlign.center),
+                ),
+              )
+            : resumen.isEmpty
+            ? const Center(child: Text('No hay datos registrados'))
+            : LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 16,
+                      bottom: MediaQuery.of(context).padding.bottom + 24,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: _buildTabla(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _buildPeriodoConsulta(),
+
+                          Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: _buildTabla(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
-            ),
+      ),
     );
   }
 }

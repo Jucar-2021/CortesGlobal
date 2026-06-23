@@ -336,7 +336,7 @@ class _ManejoclientesState extends State<Manejoclientes> {
               ),
               child: Text(
                 activo
-                    ? 'CLiente activo para operaciones'
+                    ? 'Cliente activo para operaciones'
                     : 'Cliente desactivado',
                 textAlign: TextAlign.center,
                 style: TextStyle(
