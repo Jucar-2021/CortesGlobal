@@ -62,8 +62,7 @@ class _ListaBancosState extends State<ListaBancos> {
 
       // SOLO BANCOS ACTIVOS
       final bancosActivos = bancos.where((banco) {
-        final estado =
-            int.tryParse(banco['estado'].toString()) ?? 0;
+        final estado = int.tryParse(banco['estado'].toString()) ?? 0;
 
         return estado == 1;
       }).toList();
@@ -71,7 +70,6 @@ class _ListaBancosState extends State<ListaBancos> {
       _bancos = List<Map<String, dynamic>>.from(bancosActivos);
 
       return _bancos;
-
     } catch (e) {
       debugPrint('Error al obtener bancos: $e');
       return [];
@@ -269,7 +267,12 @@ class _ListaBancosState extends State<ListaBancos> {
                             const SizedBox(height: 8),
                             Text(
                               'Saldo total: ${_fmt(saldo)}',
-                              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: Color(0xFF4A90E2)),
+                              style: const TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                color: Color(0xFF4A90E2),
+                              ),
                             ),
                             const SizedBox(height: 12),
                             Align(

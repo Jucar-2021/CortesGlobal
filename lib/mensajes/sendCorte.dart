@@ -30,6 +30,7 @@ class Notificaciones {
     required String gastosController,
     required String billetesController,
     required String monedasController,
+    required List<Map<String, dynamic>> bancos,
   }) async {
     try {
       final venta = double.tryParse(ventaController) ?? 0;
@@ -41,6 +42,25 @@ class Notificaciones {
       final totalEfectivo =
           venta - totalCobrosTPV - totalClientes - gastos;
 
+      final bancosConSaldo = bancos.where((b) {
+        final s = b['saldoTotal'];
+        final v = s is num
+            ? s.toDouble()
+            : double.tryParse(s?.toString() ?? '0') ?? 0.0;
+        return v > 0;
+      }).toList();
+
+      final detalleTPV = bancosConSaldo.isNotEmpty
+          ? bancosConSaldo.map((b) {
+              final nombreBanco = b['nombreBanco']?.toString() ?? 'Banco';
+              final s = b['saldoTotal'];
+              final saldo = s is num
+                  ? s.toDouble()
+                  : double.tryParse(s?.toString() ?? '0') ?? 0.0;
+              return '   • $nombreBanco: ${_fmt(saldo)}';
+            }).join('\n')
+          : '   (sin capturas)';
+
       final mensaje = '''
 <b>⛽ CORTE DESPACHADOR</b>
 👤 <b>$nombre $apellidoPaterno $apellidoMaterno</b>
@@ -51,7 +71,9 @@ class Notificaciones {
 ━━━━━━━━━━━━━━━━━━
 💰 <b>Venta del día:</b> ${_fmt(venta)}
 
-🏦 <b>Tarjetas Bancarias:</b> ${_fmt(totalCobrosTPV)}
+🏦 <b>Tarjetas Bancarias:</b>
+$detalleTPV
+   <b>Total TPV: ${_fmt(totalCobrosTPV)}</b>
 
 👥 <b>Total clientes:</b> ${_fmt(totalClientes)}
 
@@ -72,8 +94,6 @@ class Notificaciones {
 ''';
 
       await send.sendMessage(mensaje);
-
-;
     } catch (e) {
       throw Exception('Error enviando mensaje a Telegram: $e');
     }

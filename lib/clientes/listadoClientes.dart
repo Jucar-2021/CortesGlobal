@@ -13,12 +13,14 @@ class Listadoclientes extends StatefulWidget {
     required this.fecha,
     required this.user,
     required this.turno,
+    this.soloActivos = true,
   });
 
   final int idUsuario;
   final String fecha;
   final String user;
   final String turno;
+  final bool soloActivos;
 
   @override
   State<Listadoclientes> createState() => _ListadoclientesState();
@@ -59,15 +61,14 @@ class _ListadoclientesState extends State<Listadoclientes> {
     try {
       final clientes = await clientesApi.getClientes();
 
-      // SOLO CLIENTES ACTIVOS
-      final clientesActivos = clientes.where((banco) {
-        final estado =
-            int.tryParse(banco['estado'].toString()) ?? 0;
+      final lista = widget.soloActivos
+          ? clientes.where((c) {
+              final estado = int.tryParse(c['estado'].toString()) ?? 0;
+              return estado == 1;
+            }).toList()
+          : clientes;
 
-        return estado == 1;
-      }).toList();
-
-      _clientes = List<Map<String, dynamic>>.from(clientesActivos);
+      _clientes = List<Map<String, dynamic>>.from(lista);
       return _clientes;
     } catch (e) {
       debugPrint('Error al obtener clientes: $e');

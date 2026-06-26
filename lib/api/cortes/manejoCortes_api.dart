@@ -4,8 +4,8 @@ class ManejocortesApi {
   final ApiService api;
   ManejocortesApi(this.api);
 
-//valida si existe un corte registrado me diante el idUsuario y fecha,
-//si existe devuelve el idCorte del corte registrado, si no existe la bd devuelve false.
+  //valida si existe un corte registrado me diante el idUsuario y fecha,
+  //si existe devuelve el idCorte del corte registrado, si no existe la bd devuelve false.
   Future<int?> validarCorteRegistrado({
     required int idUsuario,
     required String fecha,
@@ -18,29 +18,50 @@ class ManejocortesApi {
         'turno': turno,
       });
 
+      print('Respuesta validar corte: $res');
+
       if (res['ok'] == true && res['idCorte'] != null) {
-        return res['idCorte'];
+        return int.tryParse(res['idCorte'].toString());
       }
 
-      if (res['ok'] == false) {
-        return null; //
-      }
-
-      throw Exception('Respuesta inesperada del servidor');
+      return null;
     } catch (e) {
       print('Error en validarCorteRegistrado: $e');
-      rethrow;
+      return null;
     }
   }
 
   Future<void> eliminarCorte(int idCorte) async {
     try {
-      await api.postJson('Cortes/eliminar.php', {
-        'idCorte': idCorte,
-      });
+      await api.postJson('Cortes/eliminar.php', {'idCorte': idCorte});
     } catch (e) {
       print('Error al eliminar corte: $e');
       throw Exception('Error al eliminar corte');
+    }
+  }
+
+  Future<void> actualizarCorte({
+    required int idCorte,
+    required double venta,
+    required double cobros_tpv,
+    required double clientes,
+    required double cajero,
+    required double buzon,
+    required double gastos,
+  }) async {
+    try {
+      await api.postJson('Cortes/actualizar.php', {
+        'idCorte': idCorte,
+        'venta': venta,
+        'cobros_tpv': cobros_tpv,
+        'clientes': clientes,
+        'cajero': cajero,
+        'buzon': buzon,
+        'gastos': gastos,
+      });
+    } catch (e) {
+      print('Error al actualizar corte: $e');
+      throw Exception('Error al actualizar corte');
     }
   }
 }

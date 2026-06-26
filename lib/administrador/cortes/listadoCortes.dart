@@ -1,11 +1,10 @@
-import 'package:cortes_despachador/tarjetasCajero/listadoTPV.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../api/consumoPHP.dart';
 import '../../api/cortes/verCorte_api.dart';
 import '../../api/cortes/manejoCortes_api.dart';
-import '../../tarjetasCajero/baucherCajero.dart';
-import '../../clientes/listadoClientes.dart';
+import '../../api/documentos/registroDoc_api.dart';
+import 'actualizacionCorte.dart';
 
 class ListadoCortes extends StatelessWidget {
   final String fecha;
@@ -33,6 +32,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
   late final VerCorteAPI verCorteAPI = VerCorteAPI(apiService);
   late final VerCorteAPI consumoClientesAPI = VerCorteAPI(apiService);
   late final ManejocortesApi manejoCortesAPI = ManejocortesApi(apiService);
+  late final DocuementosApi _docuementosApi = DocuementosApi(apiService);
 
   @override
   void initState() {
@@ -58,66 +58,36 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
     }
   }
 
-  void _onEditarConcepto(
-    BuildContext context, {
-    required Map<String, dynamic> corte,
-    required String concepto,
-  }) {
-    Navigator.pop(context);
+  Future<List<Map<String, dynamic>>> _fetchBancosConSaldo({
+    required int idUsuario,
+    required String fecha,
+    required String turno,
+  }) async {
+    try {
+      final bancos = await _docuementosApi.getBancos();
 
-    switch (concepto) {
-      case "Cobros_tpv":
-        Navigator.push(
-          this.context,
-          MaterialPageRoute(
-            builder: (_) => ListaBancos(
-              idUsuario: corte['idUsuario'],
-              fecha: corte['fecha'].toString(),
-              user: corte['usuario'].toString(),
-              turno: corte['turno'].toString(),
-            ),
-          ),
-        );
-        break;
-      case "Clientes":
-        Navigator.push(
-          this.context,
-          MaterialPageRoute(
-            builder: (_) => Listadoclientes(
-              user: corte['usuario'].toString(),
-              idUsuario: corte['idUsuario'],
-              fecha: corte['fecha'].toString(),
-              turno: corte['turno'].toString(),
-            ),
-          ),
-        );
-        break;
-      case "Global":
-        Navigator.push(
-          this.context,
-          MaterialPageRoute(
-            builder: (_) => RegistroDocumentosPage(
-              idUsuario: corte['idUsuario'],
-              fecha: corte['fecha'].toString(),
-              turno: corte['turno'].toString(),
-              banco: 'Cajero',
-            ),
-          ),
-        );
-        break;
-      case "Buzon":
-        Navigator.push(
-          this.context,
-          MaterialPageRoute(
-            builder: (_) => RegistroDocumentosPage(
-              idUsuario: corte['idUsuario'],
-              fecha: corte['fecha'].toString(),
-              turno: corte['turno'].toString(),
-              banco: 'Buzon',
-            ),
-          ),
-        );
-        break;
+      final resultados = await Future.wait(
+        bancos.map((banco) async {
+          final idBanco = (banco['idBanco'] as num?)?.toInt() ?? 0;
+          final total = await _docuementosApi.obtenerTotalDatos(
+            idBanco: idBanco,
+            idUsuario: idUsuario,
+            fecha: fecha,
+            turno: turno,
+          );
+          return {
+            'idBanco': idBanco,
+            'nombreBanco': banco['nombreBanco']?.toString() ?? 'Sin nombre',
+            'saldoTotal': total,
+          };
+        }),
+      );
+
+      // Solo mostrar bancos con saldo registrado, sin importar si están activos o no
+      return resultados.where((b) => (b['saldoTotal'] as num) > 0).toList();
+    } catch (e) {
+      debugPrint('Error fetching bancos con saldo: $e');
+      return [];
     }
   }
 
@@ -326,10 +296,22 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                                 turno: corte['turno'].toString(),
                               );
 
+                              final bancosConSaldo = await _fetchBancosConSaldo(
+                                idUsuario: corte['idUsuario'] is int
+                                    ? corte['idUsuario']
+                                    : int.tryParse(
+                                            corte['idUsuario'].toString(),
+                                          ) ??
+                                          0,
+                                fecha: corte['fecha'].toString(),
+                                turno: corte['turno'].toString(),
+                              );
+
                               _showCorteDetails(
                                 context,
                                 Map<String, dynamic>.from(corte),
                                 consumoClientes,
+                                bancosConSaldo,
                               );
                             },
                             child: Padding(
@@ -496,10 +478,51 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
     }
   }
 
+  void _navegarEditar(Map<String, dynamic> corte) {
+    final partes = corte['usuario'].toString().trim().split(RegExp(r'\s+'));
+    final nombre = partes.isNotEmpty ? partes[0] : '';
+    final apellidoPaterno = partes.length > 1 ? partes[1] : '';
+    final apellidoMaterno = partes.length > 2
+        ? partes.sublist(2).join(' ')
+        : '';
+
+    final idUsuario = corte['idUsuario'] is int
+        ? corte['idUsuario'] as int
+        : int.tryParse(corte['idUsuario'].toString()) ?? 0;
+
+    final idCorte = corte['idCorte'] is int
+        ? corte['idCorte'] as int
+        : int.tryParse(corte['idCorte'].toString()) ?? 0;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ActualizarCorte(
+          idCorte: idCorte,
+          fecha: corte['fecha'].toString(),
+          user: corte['usuario'].toString(),
+          idUsuario: idUsuario,
+          turno: corte['turno'].toString(),
+          nombre: nombre,
+          apellidoPaterno: apellidoPaterno,
+          apellidoMaterno: apellidoMaterno,
+          ventaInicial: corte['venta']?.toString(),
+          gastosInicial: corte['gastos']?.toString(),
+          cajeroInicial: _parseToDouble(corte['cajero']),
+          buzonInicial: _parseToDouble(corte['buzon']),
+          clientesInicial: _parseToDouble(corte['clientes']),
+        ),
+      ),
+    ).then((edited) {
+      if (edited == true) setState(() {});
+    });
+  }
+
   void _showCorteDetails(
     BuildContext context,
     Map<String, dynamic> corte,
     List<dynamic> consumoClientes,
+    List<Map<String, dynamic>> bancosConSaldo,
   ) {
     showDialog(
       context: context,
@@ -574,26 +597,30 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                           title: "Tarjetas y clientes",
                           icon: Icons.credit_card_rounded,
                           children: [
-                            _buildDetailRow(
-                              "Total tarjetas",
-                              _fmt(_parseToDouble(corte['cobros_tpv'])),
-                              showEditButton: true,
-                              onEdit: () => _onEditarConcepto(
-                                dialogContext,
-                                corte: corte,
-                                concepto: "Cobros_tpv",
+                            if (bancosConSaldo.isNotEmpty)
+                              ...bancosConSaldo.map((banco) {
+                                final double saldo =
+                                    (banco['saldoTotal'] as num?)?.toDouble() ??
+                                    0.0;
+                                return _buildDetailRow(
+                                  banco['nombreBanco'].toString(),
+                                  _fmt(saldo),
+                                );
+                              })
+                            else
+                              _buildDetailRow(
+                                "Total tarjetas",
+                                _fmt(_parseToDouble(corte['cobros_tpv'])),
                               ),
-                            ),
-
+                            if (bancosConSaldo.isNotEmpty)
+                              _buildDetailRow(
+                                "Total tarjetas",
+                                _fmt(_parseToDouble(corte['cobros_tpv'])),
+                                bold: true,
+                              ),
                             _buildDetailRow(
                               "Clientes",
                               _fmt(_parseToDouble(corte['clientes'])),
-                              showEditButton: true,
-                              onEdit: () => _onEditarConcepto(
-                                dialogContext,
-                                corte: corte,
-                                concepto: "Clientes",
-                              ),
                             ),
                           ],
                         ),
@@ -605,22 +632,10 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                             _buildDetailRow(
                               "Global",
                               _fmt(_parseToDouble(corte['cajero'])),
-                              showEditButton: true,
-                              onEdit: () => _onEditarConcepto(
-                                dialogContext,
-                                corte: corte,
-                                concepto: "Global",
-                              ),
                             ),
                             _buildDetailRow(
                               "Buzón",
                               _fmt(_parseToDouble(corte['buzon'])),
-                              showEditButton: true,
-                              onEdit: () => _onEditarConcepto(
-                                dialogContext,
-                                corte: corte,
-                                concepto: "Buzon",
-                              ),
                             ),
                             _buildDetailRow(
                               "Gastos",
@@ -722,6 +737,29 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                   ),
                 ),
                 const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(dialogContext);
+                      _navegarEditar(corte);
+                    },
+                    icon: const Icon(Icons.edit_rounded),
+                    label: const Text(
+                      "Editar corte",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: const Color(0xFF005498),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(

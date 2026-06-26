@@ -2,16 +2,16 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'tarjetasCajero/baucherCajero.dart';
-import 'clientes/listadoClientes.dart';
-import 'api/cortes/guardarCorte_api.dart';
-import 'api/consumoPHP.dart';
-import 'api/documentos/registroDoc_api.dart';
-import 'mensajes/sendCorte.dart';
+import '../../tarjetasCajero/baucherCajero.dart';
+import '../../clientes/listadoClientes.dart';
+import '../../api/consumoPHP.dart';
+import '../../api/documentos/registroDoc_api.dart';
+import '../../api/cortes/manejoCortes_api.dart';
 
-class DatoCorte extends StatefulWidget {
-  const DatoCorte({
+class ActualizarCorte extends StatefulWidget {
+  const ActualizarCorte({
     super.key,
+    required this.idCorte,
     required this.fecha,
     required this.user,
     required this.idUsuario,
@@ -26,6 +26,7 @@ class DatoCorte extends StatefulWidget {
     this.clientesInicial,
   });
 
+  final int idCorte;
   final String fecha;
   final String user;
   final int idUsuario;
@@ -34,7 +35,6 @@ class DatoCorte extends StatefulWidget {
   final String apellidoPaterno;
   final String apellidoMaterno;
 
-  // Valores iniciales opcionales (para editar un corte existente)
   final String? ventaInicial;
   final String? gastosInicial;
   final double? cajeroInicial;
@@ -42,10 +42,11 @@ class DatoCorte extends StatefulWidget {
   final double? clientesInicial;
 
   @override
-  State<DatoCorte> createState() => _DatoCorteState();
+  State<ActualizarCorte> createState() => _ActualizarCorteState();
 }
 
-class _DatoCorteState extends State<DatoCorte> {
+class _ActualizarCorteState extends State<ActualizarCorte> {
+  late int idCorte;
   late String fecha;
   late String user;
   late int idUsuario;
@@ -70,15 +71,13 @@ class _DatoCorteState extends State<DatoCorte> {
   SharedPreferences? _prefs;
   bool _prefsReady = false;
 
-  late final Notificaciones notificaciones = Notificaciones();
-
   // ======== BANCOS / TPV ========
   final ApiService _apiService = ApiService();
   late final DocuementosApi _docuementosApi;
   List<Map<String, dynamic>> _bancos = [];
   late Future<List<Map<String, dynamic>>> _futureBancos;
 
-  String get _saldosKey => 'saldos_clientes_${idUsuario}_${fecha}_$turno';
+  String get _saldosKey => 'saldos_clientes_act_${idUsuario}_${fecha}_$turno';
 
   // ======== FORMATO DINERO ========
   final NumberFormat _currencyFormat = NumberFormat.currency(
@@ -89,13 +88,13 @@ class _DatoCorteState extends State<DatoCorte> {
 
   String _fmt(double valor) => _currencyFormat.format(valor);
 
-  // Key con contexto (evita mezclar datos entre usuarios/fechas/turno)
-  String _k(String key) => '${key}_${idUsuario}_${fecha}_$turno';
+  String _k(String key) => '${key}_act_${idUsuario}_${fecha}_$turno';
 
   @override
   void initState() {
     super.initState();
 
+    idCorte = widget.idCorte;
     fecha = widget.fecha;
     user = widget.user;
     idUsuario = widget.idUsuario;
@@ -115,18 +114,21 @@ class _DatoCorteState extends State<DatoCorte> {
   Future<void> _initPrefsAndLoad() async {
     _prefs = await SharedPreferences.getInstance();
 
-    _ventaController.text = _prefs!.getString(_k('ventaDia')) ?? '';
-    _gastosController.text = _prefs!.getString(_k('gastos')) ?? '';
+    _ventaController.text =
+        _prefs!.getString(_k('ventaDia')) ?? widget.ventaInicial ?? '';
+    _gastosController.text =
+        _prefs!.getString(_k('gastos')) ?? widget.gastosInicial ?? '';
 
     _totalCobrosTPV = _prefs!.getDouble(_k('totalCobrosTPV')) ?? 0.0;
-    _totalBuzon = _prefs!.getDouble(_k('totalBuzon')) ?? 0.0;
-    _totalCajero = _prefs!.getDouble(_k('totalCajero')) ?? 0.0;
-    _totalClientes = _prefs!.getDouble(_k('totalClientes')) ?? 0.0;
+    _totalBuzon =
+        _prefs!.getDouble(_k('totalBuzon')) ?? widget.buzonInicial ?? 0.0;
+    _totalCajero =
+        _prefs!.getDouble(_k('totalCajero')) ?? widget.cajeroInicial ?? 0.0;
+    _totalClientes =
+        _prefs!.getDouble(_k('totalClientes')) ?? widget.clientesInicial ?? 0.0;
 
     _prefsReady = true;
-
     _recalcularTotal();
-
     if (mounted) setState(() {});
   }
 
@@ -145,13 +147,7 @@ class _DatoCorteState extends State<DatoCorte> {
   Future<void> _fetchBancos() async {
     try {
       final bancos = await _docuementosApi.getBancos();
-
-      final bancosActivos = bancos.where((banco) {
-        final estado = int.tryParse(banco['estado'].toString()) ?? 0;
-        return estado == 1;
-      }).toList();
-
-      _bancos = List<Map<String, dynamic>>.from(bancosActivos);
+      _bancos = List<Map<String, dynamic>>.from(bancos);
     } catch (e) {
       debugPrint('Error al obtener bancos: $e');
     }
@@ -159,12 +155,9 @@ class _DatoCorteState extends State<DatoCorte> {
 
   Future<void> _aplicarSaldosGuardados() async {
     if (_prefs == null) return;
-
     final jsonString = _prefs!.getString(_saldosKey);
     if (jsonString == null || jsonString.isEmpty) return;
-
     final Map<String, dynamic> saldosGuardados = jsonDecode(jsonString);
-
     for (final banco in _bancos) {
       final id = (banco['idBanco'] as num?)?.toInt() ?? 0;
       if (saldosGuardados.containsKey(id.toString())) {
@@ -176,7 +169,6 @@ class _DatoCorteState extends State<DatoCorte> {
 
   Future<void> _guardarSaldosLocales() async {
     if (_prefs == null) return;
-
     final Map<String, double> saldos = {};
     for (final banco in _bancos) {
       final id = (banco['idBanco'] as num?)?.toInt() ?? 0;
@@ -186,25 +178,21 @@ class _DatoCorteState extends State<DatoCorte> {
           : double.tryParse(saldo.toString()) ?? 0.0;
       saldos[id.toString()] = valor;
     }
-
     await _prefs!.setString(_saldosKey, jsonEncode(saldos));
   }
 
   Future<void> _recargarTotalesTPV() async {
     if (_bancos.isEmpty) return;
-
     try {
       final resultados = await Future.wait(
         _bancos.map((banco) async {
           final idBanco = (banco['idBanco'] as num?)?.toInt() ?? 0;
-
           final total = await _docuementosApi.obtenerTotalDatos(
             idBanco: idBanco,
             idUsuario: idUsuario,
             fecha: fecha,
             turno: turno,
           );
-
           return MapEntry(idBanco, total);
         }),
       );
@@ -216,9 +204,7 @@ class _DatoCorteState extends State<DatoCorte> {
           final i = _bancos.indexWhere(
             (c) => (c['idBanco'] as num?)?.toInt() == entry.key,
           );
-          if (i != -1) {
-            _bancos[i]['saldoTotal'] = entry.value;
-          }
+          if (i != -1) _bancos[i]['saldoTotal'] = entry.value;
         }
         _totalCobrosTPV = _calcularTotalGeneral();
       });
@@ -247,7 +233,6 @@ class _DatoCorteState extends State<DatoCorte> {
         ),
       ),
     );
-
     if (!mounted) return;
     await _recargarTotalesTPV();
   }
@@ -273,7 +258,6 @@ class _DatoCorteState extends State<DatoCorte> {
     super.dispose();
   }
 
-  // ======== RECALCULAR TOTAL ========
   void _recalcularTotal() {
     final venta = double.tryParse(_ventaController.text) ?? 0;
     final gas = double.tryParse(_gastosController.text) ?? 0;
@@ -305,16 +289,15 @@ class _DatoCorteState extends State<DatoCorte> {
 
   Future<void> _clearDraft() async {
     if (!_prefsReady || _prefs == null) return;
-
     await _prefs!.remove(_k('ventaDia'));
     await _prefs!.remove(_k('totalCajero'));
     await _prefs!.remove(_k('totalBuzon'));
     await _prefs!.remove(_k('gastos'));
-    await _prefs!.remove(_k('ajustedep'));
     await _prefs!.remove(_k('totalCobrosTPV'));
     await _prefs!.remove(_k('totalClientes'));
     await _prefs!.remove(_k('billetes'));
     await _prefs!.remove(_k('monedas'));
+    await _prefs!.remove(_saldosKey);
   }
 
   Future<void> _editarCajero(String banco) async {
@@ -329,7 +312,6 @@ class _DatoCorteState extends State<DatoCorte> {
         ),
       ),
     );
-
     if (resultado != null) {
       setState(() => _totalCajero = resultado);
       await _saveDouble('totalCajero', resultado);
@@ -349,7 +331,6 @@ class _DatoCorteState extends State<DatoCorte> {
         ),
       ),
     );
-
     if (resultado != null) {
       setState(() => _totalBuzon = resultado);
       await _saveDouble('totalBuzon', resultado);
@@ -366,10 +347,10 @@ class _DatoCorteState extends State<DatoCorte> {
           user: user,
           idUsuario: widget.idUsuario,
           turno: turno,
+          soloActivos: false,
         ),
       ),
     );
-
     if (resultado != null) {
       setState(() => _totalClientes = resultado);
       await _saveDouble('totalClientes', resultado);
@@ -379,18 +360,12 @@ class _DatoCorteState extends State<DatoCorte> {
 
   // ======== BOTÓN GUARDAR ========
   Future<void> _onGuardarPressed() async {
-    final confirmacion = await _showConfirmacionGuardarDialog();
+    final confirmacion = await _showConfirmacionDialog();
     if (!confirmacion) return;
-
     if (_guardando) return;
 
     final venta = double.tryParse(_ventaController.text) ?? 0;
     final gastos = double.tryParse(_gastosController.text) ?? 0;
-    final cajero = _totalCajero;
-
-    final cobros_tpv = _totalCobrosTPV;
-    final buzon = _totalBuzon;
-    final clientes = _totalClientes;
 
     if (venta == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -401,43 +376,56 @@ class _DatoCorteState extends State<DatoCorte> {
 
     FocusScope.of(context).unfocus();
     setState(() => _guardando = true);
-    try {
-      await _guardarCorte(
-        idUsuario,
-        fecha,
-        user,
-        turno,
-        venta,
-        cobros_tpv,
-        clientes,
-        cajero,
-        buzon,
-        gastos,
-      );
 
-      await _enviarCorteTelegram();
+    try {
+      await _actualizarCorte(
+        venta: venta,
+        cobros_tpv: _totalCobrosTPV,
+        clientes: _totalClientes,
+        cajero: _totalCajero,
+        buzon: _totalBuzon,
+        gastos: gastos,
+      );
 
       await _clearDraft();
 
       if (!mounted) return;
       setState(() => _guardando = false);
-
-      _showCorteGuardadoDialog();
+      _showCorteActualizadoDialog();
     } catch (e) {
       if (!mounted) return;
       setState(() => _guardando = false);
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error al guardar el corte: $e")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al actualizar el corte: $e")),
+      );
     }
+  }
+
+  Future<void> _actualizarCorte({
+    required double venta,
+    required double cobros_tpv,
+    required double clientes,
+    required double cajero,
+    required double buzon,
+    required double gastos,
+  }) async {
+    final api = ManejocortesApi(_apiService);
+    await api.actualizarCorte(
+      idCorte: idCorte,
+      venta: venta,
+      cobros_tpv: cobros_tpv,
+      clientes: clientes,
+      cajero: cajero,
+      buzon: buzon,
+      gastos: gastos,
+    );
   }
 
   // ======== OVERLAY GUARDANDO ========
   Widget _overlayGuardando() {
     return Positioned.fill(
       child: Container(
-        color: const Color.fromARGB(255, 82, 80, 80),
+        color: const Color.fromARGB(200, 82, 80, 80),
         child: Center(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -452,7 +440,7 @@ class _DatoCorteState extends State<DatoCorte> {
                 const SizedBox(width: 14),
                 Flexible(
                   child: Text(
-                    'Guardando tu corte, $user ...',
+                    'Actualizando corte de $user ...',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -467,68 +455,12 @@ class _DatoCorteState extends State<DatoCorte> {
     );
   }
 
-  // ======== GUARDAR CORTE EN BD ========
-  Future<void> _guardarCorte(
-    int idUsuario,
-    String fecha,
-    String usuario,
-    String turno,
-    double venta,
-    double cobros_tpv,
-    double clientes,
-    double cajero,
-    double buzon,
-    double gastos,
-  ) async {
-    final corteApi = CorteApi(ApiService());
-
-    await corteApi.guardarCorte(
-      fecha: fecha,
-      idUsuario: idUsuario,
-      usuario: "$nombre $apellidoPaterno $apellidoMaterno",
-      turno: turno,
-      venta: venta,
-      cobros_tpv: cobros_tpv,
-      clientes: clientes,
-      cajero: cajero,
-      buzon: buzon,
-      gastos: gastos,
-    );
-  }
-
-  // ======== ENVIAR A TELEGRAM ========
-  Future<void> _enviarCorteTelegram() async {
-    try {
-      await notificaciones.enviarCorte(
-        nombre: nombre,
-        apellidoPaterno: apellidoPaterno,
-        apellidoMaterno: apellidoMaterno,
-        turno: turno,
-        fecha: fecha,
-        totalFinal: totalFinal,
-        totalCobrosTPV: _totalCobrosTPV,
-        totalClientes: _totalClientes,
-        totalCajero: _totalCajero,
-        totalBuzon: _totalBuzon,
-        ventaController: _ventaController.text,
-        gastosController: _gastosController.text,
-        billetesController: _billetesController.text,
-        monedasController: _monedasController.text,
-        bancos: _bancos,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al enviar el corte a Telegram: $e")),
-      );
-    }
-  }
-
-  void _showCorteGuardadoDialog() {
+  void _showCorteActualizadoDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Corte guardado y enviado a Telegram"),
-        content: const Text("Tu corte ha sido guardado exitosamente."),
+        title: const Text("Corte actualizado"),
+        content: const Text("El corte ha sido actualizado exitosamente."),
         actions: [
           TextButton(
             onPressed: () {
@@ -542,16 +474,16 @@ class _DatoCorteState extends State<DatoCorte> {
     );
   }
 
-  Future<bool> _showConfirmacionGuardarDialog() async {
+  Future<bool> _showConfirmacionDialog() async {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: const Text(
-              "Confirmar guardado",
+              "Confirmar actualización",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             content: const Text(
-              "¿Estás seguro de que deseas guardar este corte?\n\nAsegúrate de que toda la información sea correcta.",
+              "¿Estás seguro de que deseas actualizar este corte?\n\nAsegúrate de que toda la información sea correcta.",
               style: TextStyle(fontWeight: FontWeight.w400),
             ),
             actions: [
@@ -561,7 +493,7 @@ class _DatoCorteState extends State<DatoCorte> {
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text("Guardar"),
+                child: const Text("Actualizar"),
               ),
             ],
           ),
@@ -587,7 +519,7 @@ class _DatoCorteState extends State<DatoCorte> {
             ),
             const SizedBox(height: 2),
             Text(
-              "Corte de la $turno, fecha:",
+              "Editar corte — $turno",
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
               textAlign: TextAlign.center,
             ),
@@ -755,7 +687,7 @@ class _DatoCorteState extends State<DatoCorte> {
                       onPressed: _guardando ? null : _onGuardarPressed,
                       icon: const Icon(Icons.save_rounded),
                       label: const Text(
-                        "Guardar Corte",
+                        "Actualizar Corte",
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -781,7 +713,6 @@ class _DatoCorteState extends State<DatoCorte> {
     );
   }
 
-  // ======== LISTADO INLINE DE BANCOS ========
   Widget _buildListaBancos() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _futureBancos,
@@ -793,23 +724,19 @@ class _DatoCorteState extends State<DatoCorte> {
             child: Center(child: CircularProgressIndicator()),
           );
         }
-
         if (snapshot.hasError && _bancos.isEmpty) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text('Error al cargar bancos: ${snapshot.error}'),
           );
         }
-
         final bancos = _bancos.isNotEmpty ? _bancos : (snapshot.data ?? []);
-
         if (bancos.isEmpty) {
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
-            child: Text('No se encontraron bancos activos'),
+            child: Text('No se encontraron bancos'),
           );
         }
-
         return Column(
           children: [
             ...bancos.map((banco) {
@@ -820,7 +747,8 @@ class _DatoCorteState extends State<DatoCorte> {
                   ? (banco['saldoTotal'] as num).toDouble()
                   : double.tryParse(banco['saldoTotal']?.toString() ?? '0') ??
                         0.0;
-
+              final bool esActivo =
+                  (int.tryParse(banco['estado'].toString()) ?? 0) == 1;
               return Card(
                 color: Colors.white,
                 elevation: 2,
@@ -833,9 +761,37 @@ class _DatoCorteState extends State<DatoCorte> {
                     backgroundColor: Color(0xFFE3F2FD),
                     child: Icon(Icons.credit_card, color: Color(0xFF1565C0)),
                   ),
-                  title: Text(
-                    nombreBanco,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  title: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          nombreBanco,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: esActivo
+                              ? const Color(0xFFE8F5E9)
+                              : const Color(0xFFFCE4EC),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          esActivo ? 'Activo' : 'Inactivo',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: esActivo
+                                ? const Color(0xFF2E7D32)
+                                : const Color(0xFFC62828),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   subtitle: Text(
                     _fmt(saldo),
@@ -856,7 +812,6 @@ class _DatoCorteState extends State<DatoCorte> {
                 ),
               );
             }),
-            // Total consolidado
             Card(
               color: const Color(0xFFE3F2FD),
               elevation: 1,
@@ -980,11 +935,9 @@ class _DatoCorteState extends State<DatoCorte> {
     try {
       final partes = fecha.split('/');
       if (partes.length != 3) return fecha;
-
       final an = partes[0];
       final mes = partes[1];
       final dia = partes[2];
-
       return '$dia/$mes/$an';
     } catch (e) {
       return fecha;
