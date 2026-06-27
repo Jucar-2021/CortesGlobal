@@ -99,7 +99,7 @@ class _CortesState extends State<Cortes> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              "Bienvenido, selecciona la fecha de cortes a consultar",
+              "Fecha de cortes a consultar",
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
@@ -118,7 +118,7 @@ class _CortesState extends State<Cortes> {
             },
           ),
         ],
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       body: Container(
         decoration: BoxDecoration(

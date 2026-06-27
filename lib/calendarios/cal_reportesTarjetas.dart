@@ -147,7 +147,7 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              "Selecciona el periodo a consultar",
+              "Periodo a consultar",
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
@@ -166,7 +166,7 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
             },
           ),
         ],
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -252,7 +252,7 @@ class _CalReporteTarjetasState extends State<CalReporteTarjetas> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     Card(
                       elevation: 8,

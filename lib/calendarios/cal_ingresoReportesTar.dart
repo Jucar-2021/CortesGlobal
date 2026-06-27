@@ -55,8 +55,10 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
         _fechaSelec.text = DateFormat('yyyy/MM/dd').format(fecha);
 
         // valor visual
-        _fechaVisual.text =
-            DateFormat("d 'de' MMMM 'del' yyyy", 'es_MX').format(fecha);
+        _fechaVisual.text = DateFormat(
+          "d 'de' MMMM 'del' yyyy",
+          'es_MX',
+        ).format(fecha);
       });
     }
   }
@@ -73,11 +75,7 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => IngresoReportes(
-          fecha: fecha,
-        ),
-      ),
+      MaterialPageRoute(builder: (context) => IngresoReportes(fecha: fecha)),
     );
   }
 
@@ -101,7 +99,7 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              "Fecha de para ingresar importes de tiras de TPV",
+              "Ingreso importes de tiras de TPV",
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
@@ -110,24 +108,24 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () async{
+            onPressed: () async {
               await AuthService.cerrarSesion();
-              Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
             },
           ),
         ],
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              cs.primary.withOpacity(0.12),
-              cs.surface,
-              cs.surface,
-            ],
+            colors: [cs.primary.withOpacity(0.12), cs.surface, cs.surface],
           ),
         ),
         child: SafeArea(
@@ -185,7 +183,6 @@ class _CalIngresoReportesTarState extends State<CalIngresoReportesTar> {
                               ),
                             ),
                             const SizedBox(height: 14),
-
 
                             const SizedBox(height: 10),
 

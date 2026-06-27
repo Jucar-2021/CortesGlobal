@@ -215,7 +215,7 @@ class _IngresoState extends State<Ingreso> {
       );
       return idCorte;
     } catch (e) {
-      print('Error al validar corte met en fecha: $e');
+      print('Error al validar corte en fecha: $e');
       return null;
     }
   }

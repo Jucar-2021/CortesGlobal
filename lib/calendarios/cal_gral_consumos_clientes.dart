@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../administrador/authServise/authServise.dart';
 
-
 class CalConsumoClientes extends StatefulWidget {
   const CalConsumoClientes({super.key});
 
@@ -47,8 +46,10 @@ class _CalConsumoClientesState extends State<CalConsumoClientes> {
         _fechaSelec.text = DateFormat('yyyy/MM/dd').format(fecha);
 
         // valor visual
-        _fechaVisual.text =
-            DateFormat("d 'de' MMMM 'del' yyyy", 'es_MX').format(fecha);
+        _fechaVisual.text = DateFormat(
+          "d 'de' MMMM 'del' yyyy",
+          'es_MX',
+        ).format(fecha);
       });
     }
   }
@@ -65,11 +66,7 @@ class _CalConsumoClientesState extends State<CalConsumoClientes> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => ClienteSaldos(
-          fecha: fecha,
-        ),
-      ),
+      MaterialPageRoute(builder: (context) => ClienteSaldos(fecha: fecha)),
     );
   }
 
@@ -93,7 +90,7 @@ class _CalConsumoClientesState extends State<CalConsumoClientes> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             Text(
-              "Fecha para cargar consumo detallado por cliente",
+              "Consumo de clientes",
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
             ),
           ],
@@ -102,24 +99,24 @@ class _CalConsumoClientesState extends State<CalConsumoClientes> {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Cerrar sesión',
-            onPressed: () async{
+            onPressed: () async {
               await AuthService.cerrarSesion();
-              Navigator.pushNamedAndRemoveUntil(context, '/login',(route) => false,);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
             },
           ),
         ],
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              cs.primary.withOpacity(0.12),
-              cs.surface,
-              cs.surface,
-            ],
+            colors: [cs.primary.withOpacity(0.12), cs.surface, cs.surface],
           ),
         ),
         child: SafeArea(
@@ -177,7 +174,6 @@ class _CalConsumoClientesState extends State<CalConsumoClientes> {
                               ),
                             ),
                             const SizedBox(height: 14),
-
 
                             const SizedBox(height: 10),
 
