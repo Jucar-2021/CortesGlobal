@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../consumoPHP.dart';
 import '../../administrador/authServise/authServise.dart';
 
@@ -19,7 +20,7 @@ class UserApi {
       'apellidoPaterno': apellidoPaterno,
       'apellidoMaterno': apellidoMaterno,
     });
-    return true; // si postJson no lanza excepción, fue ok
+    return true;
   }
 
   Future<Map<String, dynamic>?> validarUsuario(
@@ -47,6 +48,8 @@ class UserApi {
 
   Future<Map<String, dynamic>?> validarAdmin(int clave, String empresa) async {
     try {
+      debugPrint('=== Validando Admin ===');
+
       final res = await api.postJson('User/admin/validarAdmin.php', {
         'clave': clave,
         'empresa': empresa,
@@ -55,15 +58,13 @@ class UserApi {
       if (res['ok'] == true) {
         await AuthService.guardarToken(res['token']);
 
-        print(
-          'Token guardado: ${res['token']}',
-        ); // Debug: Verificar token guardado
-
         return res;
       }
 
+      debugPrint('Validación fallida');
       return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Error en validarAdmin: $e');
       return null;
     }
   }

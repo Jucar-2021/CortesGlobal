@@ -1,4 +1,5 @@
 import 'administrador/homeAdmin.dart';
+import 'administrador/adminUser/altaAdmin.dart';
 import 'api/consumoPHP.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -445,15 +446,77 @@ class _CortesState extends State<Cortes> {
             FilledButton(
               onPressed: () async {
                 final empresa = codigoEmpresaAdmin.text.trim();
+                final clave = int.tryParse(claveAcceso.text.trim()) ?? 0;
 
-                final acceso = await userApi.validarAdmin(
-                  int.tryParse(claveAcceso.text.trim()) ?? 0,
-                  empresa,
-                );
+                if (empresa.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Ingresa el código de empresa'),
+                    ),
+                  );
+                  return;
+                }
 
-                if (!context.mounted) return;
+                if (clave <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Ingresa una clave válida')),
+                  );
+                  return;
+                }
 
-                Navigator.of(context).pop(acceso != null);
+                try {
+                  debugPrint('Intentando validar admin...');
+                  final datosAdmin = await userApi.validarAdmin(clave, empresa);
+
+                  if (!context.mounted) return;
+
+                  if (datosAdmin != null && datosAdmin['ok'] == true) {
+                    // Login exitoso
+                    final esClaveMatestra =
+                        datosAdmin['es_clave_maestra'] ?? false;
+
+                    debugPrint(
+                      'Login exitoso. Es clave maestra: $esClaveMatestra',
+                    );
+
+                    Navigator.of(context).pop(true);
+
+                    // Esperar a que el diálogo se cierre
+                    await Future.delayed(const Duration(milliseconds: 300));
+                    if (!context.mounted) return;
+
+                    // Navegar según si es clave maestra o admin registrado
+                    if (esClaveMatestra) {
+                      debugPrint('Navegando a AltaAdmin (modo clave maestra)');
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AltaAdmin()),
+                      );
+                    } else {
+                      debugPrint('Navegando a HomeAdmin (admin registrado)');
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomeAdmin()),
+                      );
+                    }
+                  } else {
+                    Navigator.of(context).pop(false);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Clave de administrador incorrecta'),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  debugPrint('Excepción en validarAdmin: $e');
+                  if (!context.mounted) return;
+                  Navigator.of(context).pop(false);
+
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('Error: $e')));
+                }
               },
               child: const Text('Aceptar'),
             ),

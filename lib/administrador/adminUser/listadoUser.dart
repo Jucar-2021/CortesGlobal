@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../adminUser/registroUser.dart';
+import 'altaAdmin.dart';
 import '../../api/user/adminUser_api.dart';
 import '../../api/consumoPHP.dart';
 
@@ -123,111 +124,113 @@ class _UsuariosManejoState extends State<UsuariosManejo> {
             icon: const Icon(Icons.refresh),
             onPressed: _fetchUsuarios,
           ),
+          IconButton(
+            icon: const Icon(Icons.admin_panel_settings),
+            tooltip: 'Agregar administrador',
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AltaAdmin()),
+              );
+
+              await _fetchUsuarios();
+            },
+          ),
         ],
       ),
       body: cargando
           ? const Center(child: CircularProgressIndicator())
           : usuarios.isEmpty
           ? const Center(
-        child: Text(
-          'No hay usuarios registrados',
-          style: TextStyle(fontSize: 16),
-        ),
-      )
+              child: Text(
+                'No hay usuarios registrados',
+                style: TextStyle(fontSize: 16),
+              ),
+            )
           : RefreshIndicator(
-        onRefresh: _fetchUsuarios,
-        child: ListView.builder(
-          padding: const EdgeInsets.all(12),
-          itemCount: usuarios.length,
-          itemBuilder: (context, index) {
-            final usuario = usuarios[index];
-            final nombre = _nombreCompleto(usuario);
-            final login = usuario['usuario'] ?? 'N/A';
-
-            return Card(
-              elevation: 6,
-              shadowColor: Colors.black38,
-              margin: const EdgeInsets.only(bottom: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-                side: BorderSide(
-                  color: Colors.blue.shade200,
-                  width: 1.2,
-                ),
-              ),
-              child: Padding(
+              onRefresh: _fetchUsuarios,
+              child: ListView.builder(
                 padding: const EdgeInsets.all(12),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: CircleAvatar(
-                    radius: 27,
-                    backgroundColor: const Color(0xFF1565C0),
-                    child: Text(
-                      nombre.isNotEmpty
-                          ? nombre[0].toUpperCase()
-                          : 'U',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 21,
-                      ),
-                    ),
-                  ),
-                  title: Text(
-                    nombre.isNotEmpty ? nombre : 'Sin nombre',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 5),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.account_circle_outlined,
-                          size: 17,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          'Login: $login',
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                  trailing: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.orange.shade200,
-                      ),
-                    ),
-                    child: IconButton(
-                      tooltip: 'Cambiar contraseña',
-                      icon: const Icon(
-                        Icons.key,
-                        color: Colors.orange,
-                      ),
-                      onPressed: () {
-                        final idUsuario = int.tryParse(
-                          usuario['idUsuario'].toString(),
-                        );
+                itemCount: usuarios.length,
+                itemBuilder: (context, index) {
+                  final usuario = usuarios[index];
+                  final nombre = _nombreCompleto(usuario);
+                  final login = usuario['usuario'] ?? 'N/A';
 
-                        if (idUsuario != null) {
-                          _abrirDialogoPassword(idUsuario);
-                        }
-                      },
+                  return Card(
+                    elevation: 6,
+                    shadowColor: Colors.black38,
+                    margin: const EdgeInsets.only(bottom: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      side: BorderSide(color: Colors.blue.shade200, width: 1.2),
                     ),
-                  ),
-                ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          radius: 27,
+                          backgroundColor: const Color(0xFF1565C0),
+                          child: Text(
+                            nombre.isNotEmpty ? nombre[0].toUpperCase() : 'U',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 21,
+                            ),
+                          ),
+                        ),
+                        title: Text(
+                          nombre.isNotEmpty ? nombre : 'Sin nombre',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.account_circle_outlined,
+                                size: 17,
+                                color: Colors.grey,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                'Login: $login',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                        trailing: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.orange.shade200),
+                          ),
+                          child: IconButton(
+                            tooltip: 'Cambiar contraseña',
+                            icon: const Icon(Icons.key, color: Colors.orange),
+                            onPressed: () {
+                              final idUsuario = int.tryParse(
+                                usuario['idUsuario'].toString(),
+                              );
+
+                              if (idUsuario != null) {
+                                _abrirDialogoPassword(idUsuario);
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
-      ),
+            ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF1565C0),
         foregroundColor: Colors.white,
@@ -236,9 +239,7 @@ class _UsuariosManejoState extends State<UsuariosManejo> {
         onPressed: () async {
           await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => const Registro(),
-            ),
+            MaterialPageRoute(builder: (_) => const Registro()),
           );
 
           await _fetchUsuarios();
@@ -292,19 +293,14 @@ class _CambiarPasswordDialogState extends State<CambiarPasswordDialog> {
 
   void _mostrarMensaje(String mensaje) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(mensaje),
-        backgroundColor: Colors.orange,
-      ),
+      SnackBar(content: Text(mensaje), backgroundColor: Colors.orange),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       title: const Row(
         children: [
           Icon(Icons.key, color: Color(0xFF1565C0)),
@@ -353,10 +349,7 @@ class _CambiarPasswordDialogState extends State<CambiarPasswordDialog> {
             alignment: Alignment.centerLeft,
             child: Text(
               'Mínimo 4 caracteres',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ),
         ],
