@@ -3,6 +3,8 @@ import 'administrador/adminUser/altaAdmin.dart';
 import 'api/consumoPHP.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:local_auth/local_auth.dart';
 import 'calendarios/cal_ingresoCortes.dart';
 import 'api/user/user_api.dart';
 
@@ -88,9 +90,16 @@ class _CortesState extends State<Cortes> {
   final TextEditingController codigoEmpresa = TextEditingController();
   final TextEditingController codigoEmpresaAdmin = TextEditingController();
 
-  late Future<void> consultabd;
+  bool _loginLoading = false;
+  bool _biometriaDisponible = false;
+  bool _credencialesGuardadas = false;
 
-  bool _loginLoading = false; // solo visual, tu lógica sigue igual
+  final _secureStorage = const FlutterSecureStorage();
+  final _localAuth = LocalAuthentication();
+
+  static const _keyEmpresa = 'login_empresa';
+  static const _keyUsuario = 'login_usuario';
+  static const _keyPassword = 'login_password';
 
   // ===================== API & USERAPI =====================
   final ApiService apiService = ApiService();
@@ -99,19 +108,79 @@ class _CortesState extends State<Cortes> {
   @override
   void initState() {
     super.initState();
-    usuario.text = "";
-    pass.text = "";
-    claveAcceso.text = "";
-    codigoEmpresa.text = "";
-    // probar conexión, mejor un endpoint real (ping.php)
+    _inicializarLogin();
     apiService
         .postJson('ping.php', {})
-        .then((data) {
-          debugPrint('Ping: $data');
-        })
-        .catchError((e) {
-          debugPrint('Error ping: $e');
-        });
+        .then((data) => debugPrint('Ping: $data'))
+        .catchError((e) => debugPrint('Error ping: $e'));
+  }
+
+  Future<void> _inicializarLogin() async {
+    // Cargar credenciales guardadas
+    final empresaGuardada = await _secureStorage.read(key: _keyEmpresa);
+    final usuarioGuardado = await _secureStorage.read(key: _keyUsuario);
+    final passwordGuardado = await _secureStorage.read(key: _keyPassword);
+
+    final tieneCredenciales = empresaGuardada != null &&
+        usuarioGuardado != null &&
+        passwordGuardado != null;
+
+    // Verificar soporte biométrico
+    bool soportaBiometria = false;
+    try {
+      soportaBiometria = await _localAuth.canCheckBiometrics ||
+          await _localAuth.isDeviceSupported();
+      if (soportaBiometria) {
+        final biometricos = await _localAuth.getAvailableBiometrics();
+        soportaBiometria = biometricos.isNotEmpty;
+      }
+    } catch (_) {
+      soportaBiometria = false;
+    }
+
+    if (!mounted) return;
+
+    // Pre-rellenar campos con datos guardados
+    if (empresaGuardada != null) codigoEmpresa.text = empresaGuardada;
+    if (usuarioGuardado != null) usuario.text = usuarioGuardado;
+
+    setState(() {
+      _biometriaDisponible = soportaBiometria;
+      _credencialesGuardadas = tieneCredenciales;
+    });
+  }
+
+  Future<void> _guardarCredenciales(
+      String empresa, String usuarioVal, String password) async {
+    await _secureStorage.write(key: _keyEmpresa, value: empresa);
+    await _secureStorage.write(key: _keyUsuario, value: usuarioVal);
+    await _secureStorage.write(key: _keyPassword, value: password);
+  }
+
+  Future<void> _autenticarConHuella() async {
+    try {
+      final autenticado = await _localAuth.authenticate(
+        localizedReason: 'Usa tu huella dactilar para iniciar sesión',
+        options: const AuthenticationOptions(
+          biometricOnly: true,
+          stickyAuth: true,
+        ),
+      );
+
+      if (!autenticado || !mounted) return;
+
+      // Cargar contraseña guardada y proceder con login
+      final passwordGuardado = await _secureStorage.read(key: _keyPassword);
+      if (passwordGuardado == null) return;
+
+      pass.text = passwordGuardado;
+      await _iniciarSesion(guardandoCredenciales: false);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de autenticación biométrica: $e')),
+      );
+    }
   }
 
   @override
@@ -124,7 +193,7 @@ class _CortesState extends State<Cortes> {
     super.dispose();
   }
 
-  Future<void> _iniciarSesion() async {
+  Future<void> _iniciarSesion({bool guardandoCredenciales = true}) async {
     if (_loginLoading) return;
 
     final user = usuario.text.trim();
@@ -153,15 +222,19 @@ class _CortesState extends State<Cortes> {
     setState(() => _loginLoading = false);
 
     if (datosUsuario != null) {
+      // Guardar credenciales para futuros inicios
+      if (guardandoCredenciales) {
+        await _guardarCredenciales(empresa, user, pwd);
+        if (mounted) {
+          setState(() => _credencialesGuardadas = true);
+        }
+      }
+
       final idUsuario = datosUsuario['idUsuario'];
       final usuarioLogin = datosUsuario['usuario'];
       final nombre = datosUsuario['nombre'];
       final apellidoPaterno = datosUsuario['apellidoPaterno'];
       final apellidoMaterno = datosUsuario['apellidoMaterno'];
-
-      final nom = "$nombre";
-      final paterno = "$apellidoPaterno";
-      final materno = "$apellidoMaterno";
 
       Navigator.pushReplacementNamed(
         context,
@@ -169,9 +242,9 @@ class _CortesState extends State<Cortes> {
         arguments: {
           'usuario': usuarioLogin,
           'idUsuario': idUsuario,
-          'nombre': nom,
-          'apellidoPaterno': paterno,
-          'apellidoMaterno': materno,
+          'nombre': '$nombre',
+          'apellidoPaterno': '$apellidoPaterno',
+          'apellidoMaterno': '$apellidoMaterno',
         },
       );
     } else {
@@ -210,9 +283,10 @@ class _CortesState extends State<Cortes> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final mostrarBotonHuella = _biometriaDisponible && _credencialesGuardadas;
 
     return Scaffold(
-      resizeToAvoidBottomInset: true, // permite ajustar con teclado
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -330,7 +404,9 @@ class _CortesState extends State<Cortes> {
                                   decoration: InputDecoration(
                                     counterText: "",
                                     labelText: "Contraseña",
-                                    hintText: "Ingrese su contraseña",
+                                    hintText: mostrarBotonHuella
+                                        ? "O usa tu huella dactilar"
+                                        : "Ingrese su contraseña",
                                     prefixIcon: const Icon(Icons.lock),
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(14),
@@ -361,6 +437,30 @@ class _CortesState extends State<Cortes> {
                                     ),
                                   ),
                                 ),
+
+                                // Botón huella dactilar (solo si el equipo lo soporta y hay credenciales)
+                                if (mostrarBotonHuella) ...[
+                                  const SizedBox(height: 10),
+                                  SizedBox(
+                                    height: 48,
+                                    child: OutlinedButton.icon(
+                                      onPressed: _loginLoading
+                                          ? null
+                                          : _autenticarConHuella,
+                                      icon: const Icon(Icons.fingerprint),
+                                      label: const Text("Acceder con huella"),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: cs.primary,
+                                        side: BorderSide(color: cs.primary),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(14),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+
                                 const SizedBox(height: 10),
                                 SizedBox(
                                   height: 46,
@@ -379,7 +479,6 @@ class _CortesState extends State<Cortes> {
                           ),
                         ),
 
-                        //const Spacer(flex: 30), //sirve porque IntrinsicHeight + minHeight
                         Padding(
                           padding: const EdgeInsets.only(top: 16, bottom: 8),
                           child: Text(
@@ -471,7 +570,6 @@ class _CortesState extends State<Cortes> {
                   if (!context.mounted) return;
 
                   if (datosAdmin != null && datosAdmin['ok'] == true) {
-                    // Login exitoso
                     final esClaveMatestra =
                         datosAdmin['es_clave_maestra'] ?? false;
 
@@ -481,11 +579,9 @@ class _CortesState extends State<Cortes> {
 
                     Navigator.of(context).pop(true);
 
-                    // Esperar a que el diálogo se cierre
                     await Future.delayed(const Duration(milliseconds: 300));
                     if (!context.mounted) return;
 
-                    // Navegar según si es clave maestra o admin registrado
                     if (esClaveMatestra) {
                       debugPrint('Navegando a AltaAdmin (modo clave maestra)');
                       await Navigator.push(
