@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../adminUser/registroUser.dart';
-import 'altaAdmin.dart';
+import 'listadoAdmin.dart';
 import '../../api/user/adminUser_api.dart';
 import '../../api/consumoPHP.dart';
 
@@ -126,11 +126,11 @@ class _UsuariosManejoState extends State<UsuariosManejo> {
           ),
           IconButton(
             icon: const Icon(Icons.admin_panel_settings),
-            tooltip: 'Agregar administrador',
+            tooltip: 'Ver administradores',
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => const AltaAdmin()),
+                MaterialPageRoute(builder: (_) => const ListaAdmin()),
               );
 
               await _fetchUsuarios();

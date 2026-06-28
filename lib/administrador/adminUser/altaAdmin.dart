@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../api/user/admin_api.dart';
 import '../../api/consumoPHP.dart';
+import 'package:flutter/services.dart';
+
+import 'listadoAdmin.dart';
 
 class AltaAdmin extends StatefulWidget {
   const AltaAdmin({super.key});
@@ -19,6 +22,16 @@ class _AltaAdminState extends State<AltaAdmin> {
   final _apellidoMaternoController = TextEditingController();
   final _claveController = TextEditingController();
   final _claveConfirmController = TextEditingController();
+
+  final upperCaseFormatter = TextInputFormatter.withFunction((
+    oldValue,
+    newValue,
+  ) {
+    return newValue.copyWith(
+      text: newValue.text.toUpperCase(),
+      selection: newValue.selection,
+    );
+  });
 
   bool _guardando = false;
   bool _claveVisible = false;
@@ -44,9 +57,9 @@ class _AltaAdminState extends State<AltaAdmin> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_claveController.text != _claveConfirmController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Las claves no coinciden')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Las claves no coinciden')));
       return;
     }
 
@@ -72,9 +85,9 @@ class _AltaAdminState extends State<AltaAdmin> {
       if (!mounted) return;
       setState(() => _guardando = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -89,12 +102,23 @@ class _AltaAdminState extends State<AltaAdmin> {
   void _showExitoDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Éxito'),
         content: const Text('Administrador registrado exitosamente.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              // Cierra el diálogo
+              Navigator.of(dialogContext).pop();
+
+              // Navega a la pantalla
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/listaAdmin',
+                (route) => false,
+              );
+            },
             child: const Text('Aceptar'),
           ),
         ],
@@ -232,7 +256,9 @@ class _AltaAdminState extends State<AltaAdmin> {
                     label: 'Confirmar Clave',
                     visible: _claveConfirmVisible,
                     onVisibilityToggle: () {
-                      setState(() => _claveConfirmVisible = !_claveConfirmVisible);
+                      setState(
+                        () => _claveConfirmVisible = !_claveConfirmVisible,
+                      );
                     },
                     enabled: !_guardando,
                     validator: (value) {
@@ -298,6 +324,7 @@ class _AltaAdminState extends State<AltaAdmin> {
     return TextFormField(
       controller: controller,
       enabled: enabled,
+      inputFormatters: [upperCaseFormatter],
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
@@ -321,7 +348,10 @@ class _AltaAdminState extends State<AltaAdmin> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 16,
+        ),
       ),
       validator: validator,
     );
@@ -370,7 +400,10 @@ class _AltaAdminState extends State<AltaAdmin> {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 16,
+        ),
       ),
       validator: validator,
     );
