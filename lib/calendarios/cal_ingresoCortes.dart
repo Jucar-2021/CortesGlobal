@@ -224,8 +224,8 @@ class _IngresoState extends State<Ingreso> {
   // esto es para evitar que se capture una fecha futura o muy antigua.
   bool _validarFechaSeleccionada() {
     final hoy = DateTime.now();
-    final fechaLimiteInferior = DateTime(hoy.year, hoy.month, hoy.day - 2);
-    final fechaLimiteSuperior = DateTime(hoy.year, hoy.month, hoy.day + 2);
+    final fechaLimiteInferior = DateTime(hoy.year, hoy.month, hoy.day - 10);
+    final fechaLimiteSuperior = DateTime(hoy.year, hoy.month, hoy.day + 10);
 
     return _fechaSeleccionada!.isAfter(fechaLimiteInferior) &&
         _fechaSeleccionada!.isBefore(fechaLimiteSuperior);
