@@ -121,14 +121,16 @@ class _CortesState extends State<Cortes> {
     final usuarioGuardado = await _secureStorage.read(key: _keyUsuario);
     final passwordGuardado = await _secureStorage.read(key: _keyPassword);
 
-    final tieneCredenciales = empresaGuardada != null &&
+    final tieneCredenciales =
+        empresaGuardada != null &&
         usuarioGuardado != null &&
         passwordGuardado != null;
 
     // Verificar soporte biométrico
     bool soportaBiometria = false;
     try {
-      soportaBiometria = await _localAuth.canCheckBiometrics ||
+      soportaBiometria =
+          await _localAuth.canCheckBiometrics ||
           await _localAuth.isDeviceSupported();
       if (soportaBiometria) {
         final biometricos = await _localAuth.getAvailableBiometrics();
@@ -151,7 +153,10 @@ class _CortesState extends State<Cortes> {
   }
 
   Future<void> _guardarCredenciales(
-      String empresa, String usuarioVal, String password) async {
+    String empresa,
+    String usuarioVal,
+    String password,
+  ) async {
     await _secureStorage.write(key: _keyEmpresa, value: empresa);
     await _secureStorage.write(key: _keyUsuario, value: usuarioVal);
     await _secureStorage.write(key: _keyPassword, value: password);
@@ -161,22 +166,23 @@ class _CortesState extends State<Cortes> {
     try {
       final autenticado = await _localAuth.authenticate(
         localizedReason: 'Usa tu huella dactilar para iniciar sesión',
-        options: const AuthenticationOptions(
-          biometricOnly: true,
-          stickyAuth: true,
-        ),
+        biometricOnly: true,
+        persistAcrossBackgrounding: true,
       );
 
       if (!autenticado || !mounted) return;
 
-      // Cargar contraseña guardada y proceder con login
+      // Cargar contraseña guardada y proceder con el login
       final passwordGuardado = await _secureStorage.read(key: _keyPassword);
-      if (passwordGuardado == null) return;
+
+      if (passwordGuardado == null || !mounted) return;
 
       pass.text = passwordGuardado;
+
       await _iniciarSesion(guardandoCredenciales: false);
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error de autenticación biométrica: $e')),
       );
@@ -453,8 +459,9 @@ class _CortesState extends State<Cortes> {
                                         foregroundColor: cs.primary,
                                         side: BorderSide(color: cs.primary),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(14),
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
                                         ),
                                       ),
                                     ),
