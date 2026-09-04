@@ -225,7 +225,7 @@ class _IngresoState extends State<Ingreso> {
   bool _validarFechaSeleccionada() {
     final hoy = DateTime.now();
     final fechaLimiteInferior = DateTime(hoy.year, hoy.month, hoy.day - 10);
-    final fechaLimiteSuperior = DateTime(hoy.year, hoy.month, hoy.day + 10);
+    final fechaLimiteSuperior = DateTime(hoy.year, hoy.month, hoy.day + 2);
 
     return _fechaSeleccionada!.isAfter(fechaLimiteInferior) &&
         _fechaSeleccionada!.isBefore(fechaLimiteSuperior);

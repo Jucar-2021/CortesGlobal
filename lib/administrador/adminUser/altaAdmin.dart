@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../api/user/admin_api.dart';
 import '../../api/consumoPHP.dart';
 import 'package:flutter/services.dart';
-
 import 'listadoAdmin.dart';
 
 class AltaAdmin extends StatefulWidget {
@@ -99,31 +98,31 @@ class _AltaAdminState extends State<AltaAdmin> {
     _claveConfirmController.clear();
   }
 
-  void _showExitoDialog() {
-    showDialog(
+  Future<void> _showExitoDialog() async {
+    await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Éxito'),
-        content: const Text('Administrador registrado exitosamente.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              // Cierra el diálogo
-              Navigator.of(dialogContext).pop();
-
-              // Navega a la pantalla
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/listaAdmin',
-                (route) => false,
-              );
-            },
-            child: const Text('Aceptar'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Éxito'),
+          content: const Text('Administrador registrado exitosamente.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                // Cierra únicamente el diálogo
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
     );
+
+    if (!mounted) return;
+
+    // Cierra AltaAdmin y regresa a ListaAdmin
+    Navigator.of(context).pop(true);
   }
 
   Widget _overlayGuardando() {
