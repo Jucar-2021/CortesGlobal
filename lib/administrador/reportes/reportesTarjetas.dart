@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../api/consumoPHP.dart';
 import '../../api/documentos/consultaDocSumados_api.dart';
+import '../menuFloating.dart';
 import 'buzonCajero.dart';
 
 class ReporteTarjetas extends StatefulWidget {
@@ -353,7 +354,11 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
         children: [
           Row(
             children: [
-              const Icon(Icons.assessment_rounded, color: Colors.white, size: 28),
+              const Icon(
+                Icons.assessment_rounded,
+                color: Colors.white,
+                size: 28,
+              ),
               const SizedBox(width: 10),
               const Expanded(
                 child: Text(
@@ -367,7 +372,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
               ),
               Expanded(
                 child: TextButton(
-                  onPressed: (){
+                  onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -378,7 +383,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
                   style: TextButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
-                    shape:  RoundedRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(color: Colors.red.shade700, width: 3),
                     ),
@@ -856,6 +861,7 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
     }).length;
 
     return Scaffold(
+      floatingActionButton: const AdminFloatingMenu(),
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text('Conciliación de tarjetas'),
@@ -863,7 +869,10 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
         backgroundColor: const Color(0xFF005498),
         foregroundColor: Colors.white,
         actions: [
-          IconButton(onPressed: () => obtenerDatos(widget.fechaini, widget.fechafin), icon: const Icon(Icons.refresh)),
+          IconButton(
+            onPressed: () => obtenerDatos(widget.fechaini, widget.fechafin),
+            icon: const Icon(Icons.refresh),
+          ),
         ],
       ),
       body: Padding(

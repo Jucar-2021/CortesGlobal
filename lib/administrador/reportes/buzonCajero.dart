@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../api/consumoPHP.dart';
 import '../../api/documentos/efectivo_api.dart';
 
@@ -132,10 +133,13 @@ class _BuzonefectivoState extends State<Buzonefectivo> {
     return api.obtenerCajero(fechaIni: fechaIni, fechaFin: fechaFin);
   }
 
-  String _moneda(dynamic valor) {
-    final numero = double.tryParse(valor.toString()) ?? 0;
-    return '\$${numero.toStringAsFixed(2)}';
-  }
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
+
+  String _fmt(double valor) => _currencyFormat.format(valor);
 
   Widget _buildTabla() {
     return SingleChildScrollView(
@@ -157,8 +161,8 @@ class _BuzonefectivoState extends State<Buzonefectivo> {
             return DataRow(
               cells: [
                 DataCell(Text(item['nombreUsuario'].toString())),
-                DataCell(Text(_moneda(item['totalCajero']))),
-                DataCell(Text(_moneda(item['totalBuzon']))),
+                DataCell(Text(_fmt(item['totalCajero']))),
+                DataCell(Text(_fmt(item['totalBuzon']))),
               ],
             );
           }),
@@ -174,13 +178,13 @@ class _BuzonefectivoState extends State<Buzonefectivo> {
               ),
               DataCell(
                 Text(
-                  _moneda(totalCajeroGeneral),
+                  _fmt(totalCajeroGeneral),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               DataCell(
                 Text(
-                  _moneda(totalBuzonGeneral),
+                  _fmt(totalBuzonGeneral),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),

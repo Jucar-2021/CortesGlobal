@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../api/documentos/registroDoc_api.dart';
 import '../../api/consumoPHP.dart';
+import '../menuFloating.dart';
 
 class IngresoReportes extends StatefulWidget {
   const IngresoReportes({super.key, required this.fecha});
@@ -22,8 +23,11 @@ class _IngresoReportesState extends State<IngresoReportes> {
   List<Map<String, dynamic>> _bancos = [];
   Map<String, double> _totales = {};
 
-  final NumberFormat _currencyFormat =
-  NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   bool _cargando = true;
 
@@ -87,9 +91,9 @@ class _IngresoReportesState extends State<IngresoReportes> {
 
       setState(() => _cargando = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar bancos: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al cargar bancos: $e')));
     }
   }
 
@@ -136,6 +140,7 @@ class _IngresoReportesState extends State<IngresoReportes> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: const AdminFloatingMenu(),
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text("Reportes de Tarjetas"),
@@ -146,137 +151,135 @@ class _IngresoReportesState extends State<IngresoReportes> {
       body: _cargando
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
-                ),
-                borderRadius: BorderRadius.circular(18),
-              ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Fecha seleccionada',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.fecha,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
-            if (_bancos.isEmpty)
-              const Expanded(
-                child: Center(
-                  child: Text(
-                    'No hay bancos registrados',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.separated(
-                  itemCount: _bancos.length,
-                  separatorBuilder: (_, __) =>
-                  const SizedBox(height: 14),
-                  itemBuilder: (context, index) {
-                    final bancoMap = _bancos[index];
-
-                    final idBanco = _obtenerIdBanco(bancoMap);
-                    final nombreBanco =
-                    bancoMap['nombreBanco'].toString();
-
-                    final color = _colorBanco(nombreBanco);
-                    final total = _totales[nombreBanco] ?? 0;
-
-                    return Card(
-                      elevation: 3,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1565C0), Color(0xFF42A5F5)],
                       ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(18),
-                        onTap: idBanco <= 0
-                            ? null
-                            : () => _abrirIngresoReportes(
-                          idBanco: idBanco,
-                          banco: nombreBanco,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Fecha seleccionada',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: color.withOpacity(0.12),
-                                  borderRadius:
-                                  BorderRadius.circular(14),
-                                ),
-                                child: Icon(
-                                  _iconoBanco(nombreBanco),
-                                  color: color,
-                                  size: 28,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.fecha,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  if (_bancos.isEmpty)
+                    const Expanded(
+                      child: Center(
+                        child: Text(
+                          'No hay bancos registrados',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: _bancos.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 14),
+                        itemBuilder: (context, index) {
+                          final bancoMap = _bancos[index];
+
+                          final idBanco = _obtenerIdBanco(bancoMap);
+                          final nombreBanco = bancoMap['nombreBanco']
+                              .toString();
+
+                          final color = _colorBanco(nombreBanco);
+                          final total = _totales[nombreBanco] ?? 0;
+
+                          return Card(
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: idBanco <= 0
+                                  ? null
+                                  : () => _abrirIngresoReportes(
+                                      idBanco: idBanco,
+                                      banco: nombreBanco,
+                                    ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
                                   children: [
-                                    Text(
-                                      nombreBanco,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: color.withOpacity(0.12),
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                      child: Icon(
+                                        _iconoBanco(nombreBanco),
+                                        color: color,
+                                        size: 28,
                                       ),
                                     ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      'Total del día: ${_fmt(total)}',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        color: color,
-                                        fontWeight: FontWeight.w600,
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            nombreBanco,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Total del día: ${_fmt(total)}',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              color: color,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 18,
+                                      color: Colors.grey,
                                     ),
                                   ],
                                 ),
                               ),
-                              const Icon(
-                                Icons.arrow_forward_ios_rounded,
-                                size: 18,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
+                    ),
+                ],
               ),
-          ],
-        ),
-      ),
+            ),
     );
   }
 }
@@ -316,8 +319,11 @@ class _DialogIngresoReportesState extends State<_DialogIngresoReportes> {
   bool _guardando = false;
   double _total = 0;
 
-  final NumberFormat _currencyFormat =
-  NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   @override
   void initState() {
@@ -343,10 +349,7 @@ class _DialogIngresoReportesState extends State<_DialogIngresoReportes> {
     );
   }
 
-  _ReporteItem _itemDesdeBD({
-    required int idReporte,
-    required double importe,
-  }) {
+  _ReporteItem _itemDesdeBD({required int idReporte, required double importe}) {
     return _ReporteItem(
       idReporte: idReporte,
       controller: TextEditingController(text: importe.toStringAsFixed(2)),
@@ -399,9 +402,9 @@ class _DialogIngresoReportesState extends State<_DialogIngresoReportes> {
 
       setState(() => _cargando = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar reportes: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al cargar reportes: $e')));
     }
   }
 
@@ -491,9 +494,9 @@ class _DialogIngresoReportesState extends State<_DialogIngresoReportes> {
 
       setState(() => _guardando = false);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar reportes: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al guardar reportes: $e')));
     }
   }
 
@@ -501,161 +504,159 @@ class _DialogIngresoReportesState extends State<_DialogIngresoReportes> {
   Widget build(BuildContext context) {
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: SizedBox(
         width: double.maxFinite,
         height: 560,
         child: _cargando
             ? const Center(child: CircularProgressIndicator())
             : Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Reportes - ${widget.banco}',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                'Reportes - ${widget.banco}',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: _guardando
+                                  ? null
+                                  : () => Navigator.pop(context, false),
+                              icon: const Icon(Icons.close_rounded),
+                            ),
+                          ],
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Fecha: ${widget.fecha}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black54,
+                            ),
                           ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: _guardando
-                            ? null
-                            : () => Navigator.pop(context, false),
-                        icon: const Icon(Icons.close_rounded),
-                      ),
-                    ],
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Fecha: ${widget.fecha}',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: _items.length,
-                      itemBuilder: (context, index) {
-                        final item = _items[index];
-                        final esUltimo = index == _items.length - 1;
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: _items.length,
+                            itemBuilder: (context, index) {
+                              final item = _items[index];
+                              final esUltimo = index == _items.length - 1;
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: TextField(
-                            controller: item.controller,
-                            focusNode: item.focusNode,
-                            enabled: !_guardando,
-                            keyboardType:
-                            const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            textInputAction: esUltimo
-                                ? TextInputAction.done
-                                : TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Reporte ${index + 1}',
-                              border: const OutlineInputBorder(),
-                            ),
-                            onChanged: (value) =>
-                                _onChangedCampo(index, value),
-                            onSubmitted: (_) => _onSubmittedCampo(index),
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: TextField(
+                                  controller: item.controller,
+                                  focusNode: item.focusNode,
+                                  enabled: !_guardando,
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                      ),
+                                  textInputAction: esUltimo
+                                      ? TextInputAction.done
+                                      : TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText: 'Reporte ${index + 1}',
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                  onChanged: (value) =>
+                                      _onChangedCampo(index, value),
+                                  onSubmitted: (_) => _onSubmittedCampo(index),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            'TOTAL: ${_fmt(_total)}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1565C0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: _guardando
+                                    ? null
+                                    : () => Navigator.pop(context, false),
+                                child: const Text('Cancelar'),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: _guardando ? null : _guardar,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1565C0),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Aceptar'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.08),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      'TOTAL: ${_fmt(_total)}',
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1565C0),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: _guardando
-                              ? null
-                              : () => Navigator.pop(context, false),
-                          child: const Text('Cancelar'),
+                  if (_guardando)
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.25),
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(),
+                                SizedBox(width: 14),
+                                Text(
+                                  'Guardando reportes...',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _guardando ? null : _guardar,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1565C0),
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text('Aceptar'),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
                 ],
               ),
-            ),
-            if (_guardando)
-              Positioned.fill(
-                child: Container(
-                  color: Colors.black.withOpacity(0.25),
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircularProgressIndicator(),
-                          SizedBox(width: 14),
-                          Text(
-                            'Guardando reportes...',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
       ),
     );
   }

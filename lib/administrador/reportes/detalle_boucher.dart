@@ -3,6 +3,8 @@ import '../../api/documentos/generalTPV_api.dart';
 import '../../api/consumoPHP.dart';
 import 'package:intl/intl.dart';
 
+import '../menuFloating.dart';
+
 class DetalleTPV extends StatefulWidget {
   const DetalleTPV({super.key, required this.fecha});
 
@@ -52,9 +54,9 @@ class _DetalleTPVState extends State<DetalleTPV> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al cargar cobros: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al cargar cobros: $e')));
     }
   }
 
@@ -67,10 +69,12 @@ class _DetalleTPVState extends State<DetalleTPV> {
       final turno = (cobro['turno'] ?? '').toString();
       final importe = (cobro['importe'] ?? '').toString().toLowerCase();
 
-      final coincideUsuario = usuariosSeleccionados.isEmpty ||
+      final coincideUsuario =
+          usuariosSeleccionados.isEmpty ||
           usuariosSeleccionados.contains(nombreUsuario);
 
-      final coincideBanco = bancosSeleccionados.isEmpty ||
+      final coincideBanco =
+          bancosSeleccionados.isEmpty ||
           bancosSeleccionados.contains(nombreBanco);
 
       final coincideTurno =
@@ -125,19 +129,14 @@ class _DetalleTPVState extends State<DetalleTPV> {
       final nombreBanco = (cobro['nombreBanco'] ?? '').toString();
 
       if (idBanco > 0 && nombreBanco.isNotEmpty) {
-        bancos[idBanco] = {
-          'idBanco': idBanco,
-          'nombreBanco': nombreBanco,
-        };
+        bancos[idBanco] = {'idBanco': idBanco, 'nombreBanco': nombreBanco};
       }
     }
 
-    return bancos.values.toList()
-      ..sort(
-            (a, b) => a['nombreBanco']
-            .toString()
-            .compareTo(b['nombreBanco'].toString()),
-      );
+    return bancos.values.toList()..sort(
+      (a, b) =>
+          a['nombreBanco'].toString().compareTo(b['nombreBanco'].toString()),
+    );
   }
 
   double obtenerTotalMostrado() {
@@ -159,10 +158,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
     required int idBancoNuevo,
   }) async {
     try {
-      await api.actualizarBanco(
-        idCobro: idCobro,
-        idBancoNuevo: idBancoNuevo,
-      );
+      await api.actualizarBanco(idCobro: idCobro, idBancoNuevo: idBancoNuevo);
 
       if (!mounted) return;
 
@@ -185,10 +181,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
     required double nuevoImporte,
   }) async {
     try {
-      await api.actualizarImporte(
-        idCobro: idCobro,
-        nuevoImporte: nuevoImporte,
-      );
+      await api.actualizarImporte(idCobro: idCobro, nuevoImporte: nuevoImporte);
 
       if (!mounted) return;
 
@@ -220,9 +213,9 @@ class _DetalleTPVState extends State<DetalleTPV> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al eliminar el cobro: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al eliminar el cobro: $e')));
     }
   }
 
@@ -386,35 +379,33 @@ class _DetalleTPVState extends State<DetalleTPV> {
         ),
         children: opciones.isEmpty
             ? [
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('No hay opciones disponibles'),
-          ),
-        ]
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('No hay opciones disponibles'),
+                ),
+              ]
             : opciones.map((opcion) {
-          return CheckboxListTile(
-            value: seleccionados.contains(opcion),
-            title: Text(opcion),
-            controlAffinity: ListTileControlAffinity.leading,
-            onChanged: (value) {
-              if (value == true) {
-                seleccionados.add(opcion);
-              } else {
-                seleccionados.remove(opcion);
-              }
+                return CheckboxListTile(
+                  value: seleccionados.contains(opcion),
+                  title: Text(opcion),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  onChanged: (value) {
+                    if (value == true) {
+                      seleccionados.add(opcion);
+                    } else {
+                      seleccionados.remove(opcion);
+                    }
 
-              onChanged();
-            },
-          );
-        }).toList(),
+                    onChanged();
+                  },
+                );
+              }).toList(),
       ),
     );
   }
 
   void mostrarDialogoEditarImporte(Map<String, dynamic> cobro) {
-    final controller = TextEditingController(
-      text: cobro['importe'].toString(),
-    );
+    final controller = TextEditingController(text: cobro['importe'].toString());
 
     showDialog(
       context: context,
@@ -516,7 +507,6 @@ class _DetalleTPVState extends State<DetalleTPV> {
                     await actualizarBanco(
                       idCobro: int.parse(cobro['idCobro'].toString()),
                       idBancoNuevo: bancoSeleccionado,
-
                     );
                   },
                   child: const Text('Guardar'),
@@ -529,8 +519,11 @@ class _DetalleTPVState extends State<DetalleTPV> {
     );
   }
 
-  final NumberFormat _currencyFormat =
-  NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
+  final NumberFormat _currencyFormat = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
+  );
 
   String _fmt(double valor) => _currencyFormat.format(valor);
 
@@ -543,10 +536,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.blue.shade700,
-            Colors.blue.shade500,
-          ],
+          colors: [Colors.blue.shade700, Colors.blue.shade500],
         ),
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
@@ -600,10 +590,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
                 Text(
                   titulo,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                  ),
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
                 Text(
                   valor,
@@ -630,7 +617,9 @@ class _DetalleTPVState extends State<DetalleTPV> {
           Expanded(
             child: TextField(
               controller: buscarImporteController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(
                 hintText: 'Buscar importe',
                 prefixIcon: const Icon(Icons.search),
@@ -647,12 +636,12 @@ class _DetalleTPVState extends State<DetalleTPV> {
                 ),
                 suffixIcon: buscarImporteController.text.isNotEmpty
                     ? IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    buscarImporteController.clear();
-                    aplicarFiltros();
-                  },
-                )
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          buscarImporteController.clear();
+                          aplicarFiltros();
+                        },
+                      )
                     : null,
               ),
               onChanged: (_) => aplicarFiltros(),
@@ -713,10 +702,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
               children: [
                 CircleAvatar(
                   backgroundColor: Colors.blue.shade50,
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.blue.shade700,
-                  ),
+                  child: Icon(Icons.person, color: Colors.blue.shade700),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -837,10 +823,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
     );
   }
 
-  Widget _chipInfo({
-    required IconData icono,
-    required String texto,
-  }) {
+  Widget _chipInfo({required IconData icono, required String texto}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
@@ -854,10 +837,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
           const SizedBox(width: 4),
           Text(
             texto,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade800,
-            ),
+            style: TextStyle(fontSize: 12, color: Colors.grey.shade800),
           ),
         ],
       ),
@@ -884,9 +864,7 @@ class _DetalleTPVState extends State<DetalleTPV> {
               onPressed: () async {
                 Navigator.pop(context);
 
-                await eliminarCobro(
-                  idCobro: int.parse(idCobro.toString()),
-                );
+                await eliminarCobro(idCobro: int.parse(idCobro.toString()));
               },
               icon: const Icon(Icons.delete),
               label: const Text('Eliminar'),
@@ -926,14 +904,12 @@ class _DetalleTPVState extends State<DetalleTPV> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: const AdminFloatingMenu(),
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: const Text('Detalle de Cobros TPV'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: cargarCobros,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: cargarCobros),
         ],
       ),
       body: SafeArea(
@@ -942,58 +918,60 @@ class _DetalleTPVState extends State<DetalleTPV> {
             : cobrosOriginales.isEmpty
             ? const Center(child: Text('No se encontraron cobros'))
             : Column(
-          children: [
-            construirResumen(),
-            construirBuscadorYAcciones(),
-            if (hayFiltrosActivos)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Filtros activos',
-                        style: TextStyle(
-                          color: Colors.blue.shade700,
-                          fontWeight: FontWeight.bold,
-                        ),
+                children: [
+                  construirResumen(),
+                  construirBuscadorYAcciones(),
+                  if (hayFiltrosActivos)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              'Filtros activos',
+                              style: TextStyle(
+                                color: Colors.blue.shade700,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: limpiarFiltros,
+                            icon: const Icon(Icons.close),
+                            label: const Text('Limpiar'),
+                          ),
+                        ],
                       ),
                     ),
-                    TextButton.icon(
-                      onPressed: limpiarFiltros,
-                      icon: const Icon(Icons.close),
-                      label: const Text('Limpiar'),
-                    ),
-                  ],
-                ),
-              ),
-            Expanded(
-              child: cobrosFiltrados.isEmpty
-                  ? const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text(
-                    'No hay cobros que coincidan con los filtros',
-                    textAlign: TextAlign.center,
+                  Expanded(
+                    child: cobrosFiltrados.isEmpty
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(24),
+                              child: Text(
+                                'No hay cobros que coincidan con los filtros',
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          )
+                        : RefreshIndicator(
+                            onRefresh: cargarCobros,
+                            child: ListView.builder(
+                              padding: const EdgeInsets.only(
+                                bottom: 16,
+                                top: 4,
+                              ),
+                              itemCount: cobrosFiltrados.length,
+                              itemBuilder: (context, index) {
+                                return construirCardCobro(
+                                  cobrosFiltrados[index],
+                                );
+                              },
+                            ),
+                          ),
                   ),
-                ),
-              )
-                  : RefreshIndicator(
-                onRefresh: cargarCobros,
-                child: ListView.builder(
-                  padding:
-                  const EdgeInsets.only(bottom: 16, top: 4),
-                  itemCount: cobrosFiltrados.length,
-                  itemBuilder: (context, index) {
-                    return construirCardCobro(
-                      cobrosFiltrados[index],
-                    );
-                  },
-                ),
+                ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
