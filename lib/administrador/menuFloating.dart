@@ -20,7 +20,7 @@ class AdminFloatingMenu extends StatelessWidget {
         List<Widget> menuOptions = [
           ListTile(
             leading: const Icon(Icons.supervised_user_circle_rounded),
-            title: const Text('Usuarios - administradores'),
+            title: const Text('Usuarios - Administradores'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -110,10 +110,12 @@ class AdminFloatingMenu extends StatelessWidget {
         showModalBottomSheet(
           context: context,
           builder: (context) {
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: menuOptions,
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: menuOptions,
+                ),
               ),
             );
           },

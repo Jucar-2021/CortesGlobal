@@ -875,142 +875,145 @@ class _ReporteTarjetasState extends State<ReporteTarjetas> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: _cargando
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-            ? Center(child: Text(_error!, textAlign: TextAlign.center))
-            : comparados.isEmpty
-            ? const Center(
-                child: Text(
-                  'No se encontraron datos para el rango seleccionado.',
-                  textAlign: TextAlign.center,
-                ),
-              )
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _buildHeaderCard(diasConDiferencia, comparados.length),
-                    const SizedBox(height: 18),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: _cargando
+              ? const Center(child: CircularProgressIndicator())
+              : _error != null
+              ? Center(child: Text(_error!, textAlign: TextAlign.center))
+              : comparados.isEmpty
+              ? const Center(
+                  child: Text(
+                    'No se encontraron datos para el rango seleccionado.',
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildHeaderCard(diasConDiferencia, comparados.length),
+                      const SizedBox(height: 18),
 
-                    for (final banco in bancos) ...[
-                      Row(
-                        children: [
-                          _buildKpiTile(
-                            titulo: 'Corte ${banco['nombreBanco']}',
-                            valor: totalCorte[banco['idBanco']] ?? 0,
-                            color: Colors.blue,
-                            icon: Icons.credit_card_rounded,
-                          ),
-                          const SizedBox(width: 10),
-                          _buildResumenCard(
-                            titulo: 'Dif. ${banco['nombreBanco']}',
-                            diferencia: totalDiferencia[banco['idBanco']] ?? 0,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-
-                    const SizedBox(height: 12),
-
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF005498), Color(0xFF1976D2)],
-                        ),
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(18),
-                          onTap: () {
-                            _mostrarTablaComparativa(
-                              comparados: comparados,
-                              bancos: bancos,
-                              totalCorte: totalCorte,
-                              totalReporte: totalReporte,
-                              totalDiferencia: totalDiferencia,
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                              horizontal: 18,
+                      for (final banco in bancos) ...[
+                        Row(
+                          children: [
+                            _buildKpiTile(
+                              titulo: 'Corte ${banco['nombreBanco']}',
+                              valor: totalCorte[banco['idBanco']] ?? 0,
+                              color: Colors.blue,
+                              icon: Icons.credit_card_rounded,
                             ),
+                            const SizedBox(width: 10),
+                            _buildResumenCard(
+                              titulo: 'Dif. ${banco['nombreBanco']}',
+                              diferencia:
+                                  totalDiferencia[banco['idBanco']] ?? 0,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                      ],
 
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.table_chart_rounded,
-                                      color: Colors.white,
-                                    ),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Detalle tabular',
-                                      style: TextStyle(
+                      const SizedBox(height: 12),
+
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF005498), Color(0xFF1976D2)],
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(18),
+                            onTap: () {
+                              _mostrarTablaComparativa(
+                                comparados: comparados,
+                                bancos: bancos,
+                                totalCorte: totalCorte,
+                                totalReporte: totalReporte,
+                                totalDiferencia: totalDiferencia,
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 16,
+                                horizontal: 18,
+                              ),
+
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.table_chart_rounded,
                                         color: Colors.white,
+                                      ),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        'Detalle tabular',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(height: 12),
+
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      //
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Buzonefectivo(
+                                            fechaIni: widget.fechaini,
+                                            fechaFin: widget.fechafin,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.summarize_rounded,
+                                      size: 30,
+                                    ),
+                                    label: const Text(
+                                      'Cajero y buzon',
+                                      style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                    style: ElevatedButton.styleFrom(
+                                      //largo del boton
+                                      minimumSize: const Size(250, 40),
+                                      backgroundColor: Colors.white,
+                                      foregroundColor: const Color(0xFF005498),
 
-                                const SizedBox(height: 12),
-
-                                ElevatedButton.icon(
-                                  onPressed: () {
-                                    //
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Buzonefectivo(
-                                          fechaIni: widget.fechaini,
-                                          fechaFin: widget.fechafin,
-                                        ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.summarize_rounded,
-                                    size: 30,
-                                  ),
-                                  label: const Text(
-                                    'Cajero y buzon',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  style: ElevatedButton.styleFrom(
-                                    //largo del boton
-                                    minimumSize: const Size(250, 40),
-                                    backgroundColor: Colors.white,
-                                    foregroundColor: const Color(0xFF005498),
-
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+        ),
       ),
     );
   }
