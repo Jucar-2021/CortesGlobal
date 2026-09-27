@@ -5,6 +5,7 @@ import '../../api/cortes/verCorte_api.dart';
 import '../../api/cortes/manejoCortes_api.dart';
 import '../../api/documentos/registroDoc_api.dart';
 import 'actualizacionCorte.dart';
+import '../menuFloating.dart';
 
 class ListadoCortes extends StatelessWidget {
   final String fecha;
@@ -94,6 +95,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: const AdminFloatingMenu(),
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         elevation: 0,
@@ -410,6 +412,7 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
           }
         },
       ),
+      //floatingActionButton: const AdminFloatingMenu(),
     );
   }
 
@@ -630,11 +633,11 @@ class _VisualizarCorteState extends State<VisualizarCorte> {
                           icon: Icons.account_balance_wallet_rounded,
                           children: [
                             _buildDetailRow(
-                              "Global",
+                              "Cajero",
                               _fmt(_parseToDouble(corte['cajero'])),
                             ),
                             _buildDetailRow(
-                              "Buzón",
+                              "Buzón oficina",
                               _fmt(_parseToDouble(corte['buzon'])),
                             ),
                             _buildDetailRow(
