@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../calendarios/cal_corte_Global.dart';
 import '../calendarios/cal_reportesTarjetas.dart';
 import '../calendarios/cal_generalTPV.dart';
 import '../calendarios/cal_verCortes.dart';
@@ -67,6 +68,13 @@ class HomeAdmin extends StatelessWidget {
         subtitle: "Catálogo bancario",
         color: const Color(0xFF546E7A),
         page: const BancosManejo(),
+      ),
+      _AdminOption(
+        icon: Icons.note_alt_rounded,
+        title: "Cortes globales",
+        subtitle: "Revisión de cortes globales",
+        color: const Color(0xFF546E7A),
+        page: const CalCorteGlobal(),
       ),
     ];
 
